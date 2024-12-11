@@ -1,6 +1,6 @@
 import {useState} from 'react'
 import axios from 'axios'
-import {GoogleLogin} from 'react-google-login'
+import { GoogleLogin } from "@react-oauth/google";
 
 const Login = () =>{
     const [email,setEmail] = useState('');
@@ -18,19 +18,30 @@ const Login = () =>{
         }
     }
     
-    const handleGoogleSuccess = async (response) => {
+    const handleSuccess = async (credentialResponse) => {
       try {
-        const res = await axios.post("http://localhost:5000/api/google", {
-          tokenId: response.tokenId,
-        });
-        console.log(res.data);
+        const { credential } = credentialResponse;
+        console.log("Google Credential:", credential);
+
+        // Send the token to your backend for verification
+        const response = await axios.post(
+          "http://localhost:5000/api/google",
+          {
+            tokenId: credential,
+          }
+        );
+
+        console.log("Server Response:", response.data);
       } catch (error) {
-        console.error(error.response.data);
+        console.error(
+          "Error authenticating with Google:",
+          error.response?.data || error.message
+        );
       }
     };
 
-    const handleGoogleFailure = (error) => {
-      console.error("Google Sign In was unsuccessful. Try again later", error);
+    const handleError = () => {
+      console.error("Google Sign-In failed. Please try again.");
     };
 
     return (
@@ -53,13 +64,7 @@ const Login = () =>{
 
         <button onClick={handleLogin}>Login</button>
 
-        <GoogleLogin
-          clientId="427914236244-vqjda24o5f814gf3aaj0vcpgl5pcb51q.apps.googleusercontent.com"
-          buttonText="Login with Google"
-          onSuccess={handleGoogleSuccess}
-          onFailure={handleGoogleFailure}
-          cookiePolicy="single_host_origin"
-        />
+        <GoogleLogin onSuccess={handleSuccess} onError={handleError} />
       </div>
     );
 }
