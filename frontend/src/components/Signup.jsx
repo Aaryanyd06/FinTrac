@@ -1,5 +1,6 @@
 import { useState } from "react";
 import axios from "axios";
+import { useNavigate } from "react-router-dom";
 
 const Signup = () => {
   const [name, setName] = useState("");
@@ -8,6 +9,7 @@ const Signup = () => {
   const [confirmPassword, setConfirmPassword] = useState("");
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
+  const navigate = useNavigate();
 
   const handleSignup = async () => {
     if (password !== confirmPassword) {
@@ -21,8 +23,9 @@ const Signup = () => {
         email,
         password,
       });
-      setSuccess("Signup successful! You can now log in.");
+      setSuccess("Signup successful! Redirecting to login...");
       setError("");
+      setTimeout(() => navigate("/"), 2000); // Redirect to login after 2 seconds
     } catch (err) {
       setError(err.response?.data?.message || "Something went wrong");
       setSuccess("");

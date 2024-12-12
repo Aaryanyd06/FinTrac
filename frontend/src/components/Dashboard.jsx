@@ -1,8 +1,11 @@
 import axios from 'axios';
 import React, { useEffect, useState } from 'react'
+import { useNavigate } from "react-router-dom";
 
 const Dashboard = () => {
   const [user, setUser] = useState(null);
+
+  const navigate = useNavigate();
 
   useEffect(() => {
     const fetchUser = async () => {
@@ -22,8 +25,17 @@ const Dashboard = () => {
 
   },[])
   
+  const handleLogout = () =>{
+    localStorage.removeItem("token");
+    navigate("/");
+  }
 
-  return <div>{user ? <h1>Welcome, {user.name}!</h1> : <p>Loading...</p>}</div>;
+  return (
+    <div>
+      <div>{user ? <h1>Welcome, {user.name}!</h1> : <p>Loading...</p>}</div>
+      <button onClick={handleLogout}>logut</button>
+    </div>
+  );
 }
 
 export default Dashboard
