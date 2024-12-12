@@ -2,6 +2,7 @@ import express from "express";
 import dotenv from "dotenv";
 import connectDatabase from "./config/db.js";
 import auth from './routes/auth.js'
+import expense from './routes/expense.js'
 import cors from 'cors'
 
 dotenv.config();
@@ -21,6 +22,7 @@ app.use((req, res, next) => {
 
 app.use(express.json());
 app.use('/api',auth);
+app.use('/api/expense',expense)
 
 // Test route
 app.get("/", (req, res) => {
