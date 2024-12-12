@@ -1,10 +1,12 @@
 import {useState} from 'react'
 import axios from 'axios'
 import { GoogleLogin } from "@react-oauth/google";
+import { useNavigate } from 'react-router-dom';
 
 const Login = () =>{
     const [email,setEmail] = useState('');
     const [password, setPassword] = useState('');
+    const navigate = useNavigate();
 
     const handleLogin = async () => {
         try {
@@ -18,28 +20,21 @@ const Login = () =>{
         }
     }
     
-    const handleSuccess = async (credentialResponse) => {
-      try {
-        const { credential } = credentialResponse;
-        console.log("Google Credential:", credential);
-
-        // Send the token to your backend for verification
-        const response = await axios.post(
-          "http://localhost:5000/api/google",
-          {
-            tokenId: credential,
-          }
-        );
-
-        console.log("Server Response:", response.data);
-      } catch (error) {
-        console.error(
-          "Error authenticating with Google:",
-          error.response?.data || error.message
-        );
-      }
-    };
-
+  const handleSuccess = async (credentialResponse) => {
+    try {
+      const { data } = await axios.post("http://localhost:5000/api/google", {
+        tokenId: credentialResponse.credential,
+      });
+      localStorage.setItem("token", data.token); // Store the token in localStorage
+      navigate("/dashboard"); // Redirect to the dashboard
+    } catch (error) {
+      console.error(
+        "Error authenticating with Google:",
+        error.response?.data || error.message
+      );
+      alert("Google Sign-In was unsuccessful. Please try again.");
+    }
+  };
     const handleError = () => {
       console.error("Google Sign-In failed. Please try again.");
     };
