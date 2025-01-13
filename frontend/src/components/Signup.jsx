@@ -33,35 +33,63 @@ const Signup = () => {
   };
 
   return (
-    <div className="signup-container">
-      <h1>Sign Up</h1>
-      {error && <p style={{ color: "red" }}>{error}</p>}
-      {success && <p style={{ color: "green" }}>{success}</p>}
-      <input
-        type="text"
-        placeholder="Name"
-        value={name}
-        onChange={(e) => setName(e.target.value)}
-      />
-      <input
-        type="email"
-        placeholder="Email"
-        value={email}
-        onChange={(e) => setEmail(e.target.value)}
-      />
-      <input
-        type="password"
-        placeholder="Password"
-        value={password}
-        onChange={(e) => setPassword(e.target.value)}
-      />
-      <input
-        type="password"
-        placeholder="Confirm Password"
-        value={confirmPassword}
-        onChange={(e) => setConfirmPassword(e.target.value)}
-      />
-      <button onClick={handleSignup}>Sign Up</button>
+    <div className="flex items-center justify-center min-h-screen bg-gray-50">
+      <div className="w-full max-w-md p-6 bg-white rounded-xl shadow-md">
+        <h1 className="text-3xl font-bold text-gray-800 text-center mb-6">
+          Create Your Account
+        </h1>
+        {error && (
+          <p className="text-red-500 text-center text-sm mb-4">{error}</p>
+        )}
+        {success && (
+          <p className="text-green-500 text-center text-sm mb-4">{success}</p>
+        )}
+        <div className="space-y-4">
+          <input
+            type="text"
+            placeholder="Full Name"
+            value={name}
+            onChange={(e) => setName(e.target.value)}
+            className="w-full px-4 py-3 border border-gray-300 rounded-lg bg-gray-50 text-gray-700 focus:ring-2 focus:ring-blue-400 focus:outline-none"
+          />
+          <input
+            type="email"
+            placeholder="Email Address"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            className="w-full px-4 py-3 border border-gray-300 rounded-lg bg-gray-50 text-gray-700 focus:ring-2 focus:ring-blue-400 focus:outline-none"
+          />
+          <input
+            type="password"
+            placeholder="Password"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+            className="w-full px-4 py-3 border border-gray-300 rounded-lg bg-gray-50 text-gray-700 focus:ring-2 focus:ring-blue-400 focus:outline-none"
+          />
+          <input
+            type="password"
+            placeholder="Confirm Password"
+            value={confirmPassword}
+            onChange={(e) => setConfirmPassword(e.target.value)}
+            className="w-full px-4 py-3 border border-gray-300 rounded-lg bg-gray-50 text-gray-700 focus:ring-2 focus:ring-blue-400 focus:outline-none"
+          />
+          <button
+            onClick={handleSignup}
+            className="w-full py-3 text-white bg-blue-500 hover:bg-blue-600 rounded-lg transition focus:outline-none focus:ring-2 focus:ring-blue-300"
+          >
+            Sign Up
+          </button>
+        </div>
+        <p className="text-sm text-gray-600 text-center mt-4">
+          Already have an account?{" "}
+          <span
+            onClick={() => navigate("/")}
+            className="text-blue-500 hover:underline cursor-pointer"
+          >
+            Log In
+          </span>
+        </p>
+      </div>
     </div>
   );
 };

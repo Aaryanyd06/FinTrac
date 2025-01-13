@@ -1,28 +1,118 @@
 import axios from 'axios';
 import  { useEffect, useState } from 'react'
 import { useNavigate } from "react-router-dom";
-import Sidebar from './Sidebar';
-import DashboardContent from './DashboardContent';
-import { useTheme } from './ThemeContext';
-
+import Sidebar from "./Sidebar";
+import DashboardContent from "./DashboardContent";
+import ExpensesContent from "./ExpensesContent";
+import BudgetContent from "./BudgetContent";
+import ReportsContent from "./ReportsContent";
+import SettingsContent from "./SettingsContent";
+import AddExpenseForm from "./AddExpenseForm";
+import { useTheme } from "./ThemeContext";
 
 const Dashboard = () => {
   const [user, setUser] = useState(null);
 
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
-  const [activeItem, setActiveItem] = useState('dashboard');
-  const {darkMode, toggleDarkMode} = useTheme();
-  
+  const [activeItem, setActiveItem] = useState("dashboard");
+  const [isExpenseFormOpen, setIsExpenseFormOpen] = useState(false);
+  const [expenses, setExpenses] = useState([]);
+  const [categories, setCategories] = useState([
+    "Food",
+    "Transportation",
+    "Entertainment",
+    "Utilities",
+    "Other",
+  ]);
+  const [budget, setBudget] = useState(1000);
+  const { darkMode, toggleDarkMode } = useTheme();
+
+  useEffect(() => {
+    const savedExpenses = JSON.parse(localStorage.getItem("expenses")) || [];
+    const savedCategories =
+      JSON.parse(localStorage.getItem("categories")) || categories;
+    const savedBudget = JSON.parse(localStorage.getItem("budget")) || budget;
+    setExpenses(savedExpenses);
+    setCategories(savedCategories);
+    setBudget(savedBudget);
+  }, []);
+
+  useEffect(() => {
+    localStorage.setItem("expenses", JSON.stringify(expenses));
+  }, [expenses]);
+
+  useEffect(() => {
+    localStorage.setItem("categories", JSON.stringify(categories));
+  }, [categories]);
+
+  useEffect(() => {
+    localStorage.setItem("budget", JSON.stringify(budget));
+  }, [budget]);
+
   const toggleSidebar = () => {
-    setIsSidebarOpen(!isSidebarOpen)
+    setIsSidebarOpen(!isSidebarOpen);
+  };
+
+
+  const addExpense = (expense) => {
+    setExpenses([...expenses, { ...expense, id: Date.now() }]);
+    setIsExpenseFormOpen(false);
+  };
+
+  const deleteExpense = (id) => {
+    setExpenses(expenses.filter(expense => expense.id !== id))
   }
 
-  const renderContent  = () =>{
-    switch (activeItem) {
-      case 'dashboard':
-        return <DashboardContent />
-    }
+  const addCategory = (category) => {
+    setCategories([...categories, category])
   }
+
+  const updateBudget = (newBudget) => {
+    setBudget(newBudget)
+  }
+
+  const renderContent = () => {
+    switch (activeItem) {
+      case "dashboard":
+        return (
+          <DashboardContent
+            expenses={expenses}
+            openExpenseForm={() => setIsExpenseFormOpen(true)}
+            budget={budget}
+          />
+        );
+      case "expenses":
+        return (
+          <ExpensesContent
+            expenses={expenses}
+            deleteExpense={deleteExpense}
+            categories={categories}
+          />
+        );
+      case "budget":
+        return (
+          <BudgetContent
+            budget={budget}
+            updateBudget={updateBudget}
+            expenses={expenses}
+          />
+        );
+      case "reports":
+        return <ReportsContent expenses={expenses} />;
+      case "settings":
+        return (
+          <SettingsContent categories={categories} addCategory={addCategory} />
+        );
+      default:
+        return (
+          <DashboardContent
+            expenses={expenses}
+            openExpenseForm={() => setIsExpenseFormOpen(true)}
+            budget={budget}
+          />
+        );
+    }
+  };
 
   const navigate = useNavigate();
 
@@ -51,16 +141,12 @@ const Dashboard = () => {
 
   return (
     <div className="flex h-screen bg-gray-100 dark:bg-gray-900 transition-colors duration-200">
-      <div>{user ? <h1>Welcome, {user.name}!</h1> : <p>Loading...</p>}</div>
-      <button onClick={handleLogout}>logut</button>
-
       <Sidebar
         isOpen={isSidebarOpen}
         toggleSidebar={toggleSidebar}
         activeItem={activeItem}
         setActiveItem={setActiveItem}
       />
-
       <div className="flex-1 overflow-auto">
         <header className="bg-white dark:bg-gray-800 shadow-sm transition-colors duration-200">
           <div className="max-w-7xl mx-auto py-4 px-4 sm:px-6 lg:px-8 flex justify-between items-center">
@@ -120,10 +206,35 @@ const Dashboard = () => {
                   </svg>
                 )}
               </button>
+              <div className="flex items-center">
+                <img
+                  src="https://via.placeholder.com/40"
+                  alt="Profile"
+                  className="w-10 h-10 rounded-full mr-3"
+                />
+                <span className="font-semibold text-gray-700 dark:text-gray-300">
+                  {/* {user.name} */}
+                </span>
+              </div>
+              <button onClick={handleLogout}>logout</button>
             </div>
           </div>
         </header>
+        <main className="max-w-7xl mx-auto py-6 sm:px-6 lg:px-8">
+          {renderContent()}
+        </main>
       </div>
+      {isExpenseFormOpen && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <div className="bg-white dark:bg-gray-800 rounded-lg p-8 max-w-md w-full">
+            <AddExpenseForm
+              addExpense={addExpense}
+              closeForm={() => setIsExpenseFormOpen(false)}
+              categories={categories}
+            />
+          </div>
+        </div>
+      )}
     </div>
   );
 }
