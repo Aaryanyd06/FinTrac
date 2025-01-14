@@ -12,7 +12,6 @@ import { useTheme } from "./ThemeContext";
 
 const Dashboard = () => {
   const [user, setUser] = useState(null);
-
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
   const [activeItem, setActiveItem] = useState("dashboard");
   const [isExpenseFormOpen, setIsExpenseFormOpen] = useState(false);
