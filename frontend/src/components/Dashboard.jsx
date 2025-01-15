@@ -12,6 +12,7 @@ import { useTheme } from "./ThemeContext";
 
 const Dashboard = () => {
   const [user, setUser] = useState(null);
+
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
   const [activeItem, setActiveItem] = useState("dashboard");
   const [isExpenseFormOpen, setIsExpenseFormOpen] = useState(false);
@@ -53,10 +54,23 @@ const Dashboard = () => {
   };
 
 
-  const addExpense = (expense) => {
-    setExpenses([...expenses, { ...expense, id: Date.now() }]);
-    setIsExpenseFormOpen(false);
-  };
+ const addExpense = async (expense) => {
+   try {
+    const token = localStorage.getItem("token");
+     const response = await fetch(`http://localhost:5000/api/expense/createExpense`, {
+       method: "POST",
+       headers: {
+         "Content-Type": "application/json",
+         Authorization: `Bearer ${token}`,
+       },
+       body: JSON.stringify(expense),
+     });
+     setExpenses([...expenses, newExpense]);
+     setIsExpenseFormOpen(false);
+   } catch (error) {
+     console.error("Error adding expense:", error);
+   }
+ };
 
   const deleteExpense = (id) => {
     setExpenses(expenses.filter(expense => expense.id !== id))
