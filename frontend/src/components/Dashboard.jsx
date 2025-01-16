@@ -27,6 +27,30 @@ const Dashboard = () => {
   const [budget, setBudget] = useState(1000);
   const { darkMode, toggleDarkMode } = useTheme();
 
+useEffect(() => {
+  fetchExpenses();
+  const savedBudget = JSON.parse(localStorage.getItem("budget")) || budget;
+  setBudget(savedBudget);
+}, []);
+
+const fetchExpenses = async () => {
+  try {
+    const response = await axios.get(
+      `http://localhost:5000/api/expense/GetAllExpense`,
+      {
+        headers: {
+          Authorization: `Bearer ${user.token}`,
+        },
+      }
+    );
+    const data = await response.json();
+    setExpenses(data);
+  } catch (error) {
+    console.error("Error fetching expenses:", error);
+  }
+};
+
+
   useEffect(() => {
     const savedExpenses = JSON.parse(localStorage.getItem("expenses")) || [];
     const savedCategories =
