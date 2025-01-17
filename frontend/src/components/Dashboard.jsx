@@ -96,6 +96,8 @@ const fetchExpenses = async () => {
    }
  };
 
+
+ 
   const deleteExpense = (id) => {
     setExpenses(expenses.filter(expense => expense.id !== id))
   }
