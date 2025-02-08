@@ -81,7 +81,7 @@ const ExpensesContent = ({ expenses, deleteExpense, categories }) => {
                   ${expense.amount.toFixed(2)}
                 </span>
                 <button
-                  onClick={() => deleteExpense(expense.id)}
+                  onClick={() => deleteExpense(expense._id)} // Ensure expense._id is being passed
                   className="text-red-600 hover:text-red-800 dark:text-red-400 dark:hover:text-red-300 transition duration-200"
                 >
                   Delete

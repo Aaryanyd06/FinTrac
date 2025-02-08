@@ -27,55 +27,82 @@ const Dashboard = () => {
   const [budget, setBudget] = useState(1000);
   const { darkMode, toggleDarkMode } = useTheme();
 
-useEffect(() => {
-  fetchExpenses();
-  const savedBudget = JSON.parse(localStorage.getItem("budget")) || budget;
-  setBudget(savedBudget);
-}, []);
+  useEffect(() => {
+    fetchExpenses();
+    fetchCategories();
+    const savedBudget = JSON.parse(localStorage.getItem("budget")) || budget;
+    setBudget(savedBudget);
+  }, []);
+
+    useEffect(() => {
+      localStorage.setItem("budget", JSON.stringify(budget));
+    }, [budget]);
+
+  const toggleSidebar = () => {
+    setIsSidebarOpen(!isSidebarOpen);
+  };
+
 
 const fetchExpenses = async () => {
   try {
+    const token = localStorage.getItem("token"); // Get token from localStorage
     const response = await axios.get(
       `http://localhost:5000/api/expense/GetAllExpense`,
       {
         headers: {
-          Authorization: `Bearer ${user.token}`,
+          Authorization: `Bearer ${token}`, // Use the token from localStorage
         },
       }
     );
-    const data = await response.json();
-    setExpenses(data);
+    setExpenses(response.data); // Use response.data instead of response.json()
   } catch (error) {
     console.error("Error fetching expenses:", error);
   }
 };
 
+const fetchCategories = async () => {
+  try {
+    const token = localStorage.getItem("token"); // Get token from localStorage
+    const response = await axios.get(
+      `http://localhost:5000/api/expense/categories`,
+      {
+        headers: {
+          Authorization: `Bearer ${token}`, // Use the token from localStorage
+        },
+      }
+    );
+    setCategories(response.data); // Use response.data instead of response.json()
+  } catch (error) {
+    console.error("Error fetching categories:", error);
+  }
+};
+   
 
-  useEffect(() => {
-    const savedExpenses = JSON.parse(localStorage.getItem("expenses")) || [];
-    const savedCategories =
-      JSON.parse(localStorage.getItem("categories")) || categories;
-    const savedBudget = JSON.parse(localStorage.getItem("budget")) || budget;
-    setExpenses(savedExpenses);
-    setCategories(savedCategories);
-    setBudget(savedBudget);
-  }, []);
+  // useEffect(() => {
+  //   const savedExpenses = JSON.parse(localStorage.getItem("expenses")) || [];
+  //   const savedCategories =
+  //     JSON.parse(localStorage.getItem("categories")) || categories;
+  //   const savedBudget = JSON.parse(localStorage.getItem("budget")) || budget;
+  //   setExpenses(savedExpenses);
+  //   setCategories(savedCategories);
+  //   setBudget(savedBudget);
+  // }, []);
 
-  useEffect(() => {
-    localStorage.setItem("expenses", JSON.stringify(expenses));
-  }, [expenses]);
+  // useEffect(() => {
+  //   localStorage.setItem("expenses", JSON.stringify(expenses));
+  // }, [expenses]);
 
-  useEffect(() => {
-    localStorage.setItem("categories", JSON.stringify(categories));
-  }, [categories]);
+  // useEffect(() => {
+  //   localStorage.setItem("categories", JSON.stringify(categories));
+  // }, [categories]);
 
-  useEffect(() => {
-    localStorage.setItem("budget", JSON.stringify(budget));
-  }, [budget]);
+  // useEffect(() => {
+  //   localStorage.setItem("budget", JSON.stringify(budget));
+  // }, [budget]);
 
-  const toggleSidebar = () => {
-    setIsSidebarOpen(!isSidebarOpen);
-  };
+  // const toggleSidebar = () => {
+  //   setIsSidebarOpen(!isSidebarOpen);
+  // };
 
 
  const addExpense = async (expense) => {
@@ -89,6 +116,7 @@ const fetchExpenses = async () => {
        },
        body: JSON.stringify(expense),
      });
+     const newExpense = await response.json();
      setExpenses([...expenses, newExpense]);
      setIsExpenseFormOpen(false);
    } catch (error) {
@@ -98,17 +126,61 @@ const fetchExpenses = async () => {
 
 
  
-  const deleteExpense = (id) => {
-    setExpenses(expenses.filter(expense => expense.id !== id))
+const deleteExpense = async (id) => {
+  try {
+    const token = localStorage.getItem("token"); // Get token from localStorage
+    await axios.delete(
+      `http://localhost:5000/api/expense/deleteExpense/${id}`,
+      {
+        headers: {
+          Authorization: `Bearer ${token}`, // Use the token from localStorage
+        },
+      }
+    );
+    setExpenses(expenses.filter((expense) => expense._id !== id)); // Update state
+  } catch (error) {
+    console.error("Error deleting expense:", error);
   }
+};
 
-  const addCategory = (category) => {
-    setCategories([...categories, category])
+const addCategory = async (category) => {
+  try {
+    const token = localStorage.getItem("token"); // Get token from localStorage
+    const response = await axios.post(
+      `http://localhost:5000/api/expense/categories`,
+      { name: category },
+      {
+        headers: {
+          Authorization: `Bearer ${token}`, // Use the token from localStorage
+        },
+      }
+    );
+    setCategories([...categories, response.data]); // Update state
+  } catch (error) {
+    console.error("Error adding category:", error);
   }
+};
 
-  const updateBudget = (newBudget) => {
-    setBudget(newBudget)
-  }
+  const updateBudget = async (newBudget) => {
+    try {
+      const token = localStorage.getItem("token");
+      const response = await axios.put(
+        `http://localhost:5000/api/expense/updateBudget`,
+        { budget: newBudget },
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+
+      // Update the budget state in the parent component
+      setBudget(newBudget);
+      console.log("Budget updated successfully:", response.data);
+    } catch (error) {
+      console.error("Error updating budget:", error);
+    }
+  };
 
   const renderContent = () => {
     switch (activeItem) {

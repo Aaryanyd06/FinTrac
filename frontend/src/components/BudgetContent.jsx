@@ -1,7 +1,13 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 
 const BudgetContent = ({ budget, updateBudget, expenses }) => {
   const [newBudget, setNewBudget] = useState(budget);
+
+  // Update the local state when the `budget` prop changes
+  useEffect(() => {
+    setNewBudget(budget);
+  }, [budget]);
+
   const totalExpenses = expenses.reduce(
     (sum, expense) => sum + expense.amount,
     0
