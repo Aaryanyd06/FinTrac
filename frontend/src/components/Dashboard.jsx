@@ -62,21 +62,22 @@ const fetchExpenses = async () => {
 
 const fetchCategories = async () => {
   try {
-    const token = localStorage.getItem("token"); // Get token from localStorage
+    const token = localStorage.getItem("token");
     const response = await axios.get(
       `http://localhost:5000/api/expense/categories`,
       {
         headers: {
-          Authorization: `Bearer ${token}`, // Use the token from localStorage
+          Authorization: `Bearer ${token}`,
         },
       }
     );
-    setCategories(response.data); // Use response.data instead of response.json()
+    setCategories(response.data.map((cat) => cat.name)); // Assuming the response is an array of category objects
   } catch (error) {
     console.error("Error fetching categories:", error);
   }
 };
-   
+
+
 
   // useEffect(() => {
   //   const savedExpenses = JSON.parse(localStorage.getItem("expenses")) || [];
@@ -145,17 +146,17 @@ const deleteExpense = async (id) => {
 
 const addCategory = async (category) => {
   try {
-    const token = localStorage.getItem("token"); // Get token from localStorage
+    const token = localStorage.getItem("token");
     const response = await axios.post(
       `http://localhost:5000/api/expense/categories`,
       { name: category },
       {
         headers: {
-          Authorization: `Bearer ${token}`, // Use the token from localStorage
+          Authorization: `Bearer ${token}`,
         },
       }
     );
-    setCategories([...categories, response.data]); // Update state
+    setCategories([...categories, response.data.name]); // Assuming the response contains the new category object
   } catch (error) {
     console.error("Error adding category:", error);
   }
@@ -164,8 +165,15 @@ const addCategory = async (category) => {
   const updateBudget = async (newBudget) => {
     try {
       const token = localStorage.getItem("token");
+
+      if (!token) {
+        console.error("No token found. Redirecting to login...");
+        navigate("/login");
+        return;
+      }
+
       const response = await axios.put(
-        `http://localhost:5000/api/expense/updateBudget`,
+        "http://localhost:5000/api/expense/updateBudget",
         { budget: newBudget },
         {
           headers: {
@@ -174,13 +182,24 @@ const addCategory = async (category) => {
         }
       );
 
-      // Update the budget state in the parent component
-      setBudget(newBudget);
       console.log("Budget updated successfully:", response.data);
+      setBudget(response.data.updatedUser.budget); // Update state with the new budget
     } catch (error) {
-      console.error("Error updating budget:", error);
+      console.error(
+        "Error updating budget:",
+        error.response?.data || error.message
+      );
+
+      if (error.response?.status === 403) {
+        console.error(
+          "Forbidden: Token may be invalid or expired. Redirecting to login..."
+        );
+        localStorage.removeItem("token");
+        navigate("/login");
+      }
     }
   };
+
 
   const renderContent = () => {
     switch (activeItem) {
@@ -228,22 +247,34 @@ const addCategory = async (category) => {
   const navigate = useNavigate();
 
   useEffect(() => {
-    const fetchUser = async () => {
+    const fetchUserAndBudget = async () => {
       try {
         const token = localStorage.getItem("token");
         const config = { headers: { Authorization: `Bearer ${token}` } };
-        const response = await axios.get(
+
+        // Fetch user data
+        const userResponse = await axios.get(
           "http://localhost:5000/api/getUser",
           config
         );
-        setUser(response.data);
-      } catch (error) {
-        console.error("Failed to fetch user:", error.message);
-      }
-    }
-    fetchUser();
+        setUser(userResponse.data);
 
-  },[])
+        // Fetch budget from the backend
+        const budgetResponse = await axios.get(
+          "http://localhost:5000/api/expense/getBudget",
+          config
+        );
+        setBudget(budgetResponse.data.budget || 1000); // Use default value if budget is not set
+      } catch (error) {
+        console.error("Failed to fetch user or budget:", error.message);
+      }
+    };
+
+    fetchUserAndBudget();
+    fetchExpenses();
+    fetchCategories();
+  }, []);
+
   
   const handleLogout = () =>{
     localStorage.removeItem("token");

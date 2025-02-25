@@ -1,4 +1,6 @@
 import Expense from "../models/Expense.js";
+import User from "../models/User.js";
+import Category from "../models/category.js";
 
 export const createExpense = async(req, res) =>{
     const {category, amount, description, date} = req.body;
@@ -70,15 +72,11 @@ export const deleteExpense = async (req, res) => {
 };
 
 
-import User from "../models/User.js";
 
 console.log("User model:", User); // Log the User model to verify it's imported correctly
 
 export const updateBudget = async (req, res) => {
   try {
-    console.log("Request body:", req.body); // Log the request body
-    console.log("User ID:", req.user.id); // Log the user ID
-
     const { budget } = req.body;
     const userId = req.user.id;
 
@@ -92,12 +90,53 @@ export const updateBudget = async (req, res) => {
       return res.status(404).json({ message: "User not found" });
     }
 
-    console.log("Updated user:", updatedUser); // Log the updated user
     res
       .status(200)
       .json({ message: "Budget updated successfully", updatedUser });
   } catch (error) {
     console.error("Error updating budget:", error);
-    res.status(500).json({ error: error.message });
+    res.status(500).json({ message: "Internal server error" });
+  }
+};
+
+export const getBudget = async (req, res) => {
+  try {
+    const userId = req.user.id;
+    const user = await User.findById(userId);
+
+    if (!user) {
+      return res.status(404).json({ message: "User not found" });
+    }
+
+    res.status(200).json({ budget: user.budget });
+  } catch (error) {
+    console.error("Error fetching budget:", error);
+    res.status(500).json({ message: "Internal server error" });
+  }
+};
+
+export const addCategory = async (req, res) => {
+  const { name } = req.body;
+
+  try {
+    const category = new Category({
+      userId: req.user.id,
+      name,
+    });
+    await category.save();
+    res.status(201).json(category);
+  } catch (error) {
+    res.status(500).json({
+      error: error.message,
+    });
+  }
+};
+
+export const getCategories = async (req, res) => {
+  try {
+    const categories = await Category.find({ userId: req.user.id });
+    res.json(categories);
+  } catch (error) {
+    res.status(500).json({ message: error.message });
   }
 };
