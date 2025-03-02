@@ -1,6 +1,9 @@
-import axios from 'axios';
-import  { useEffect, useState } from 'react'
+//dashboard.jsx
+import axios from "axios";
+import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { ToastContainer, toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 import Sidebar from "./Sidebar";
 import DashboardContent from "./DashboardContent";
 import ExpensesContent from "./ExpensesContent";
@@ -10,198 +13,214 @@ import SettingsContent from "./SettingsContent";
 import AddExpenseForm from "./AddExpenseForm";
 import { useTheme } from "./ThemeContext";
 
+const API_BASE_URL =
+  import.meta.env.VITE_API_BASE_URL || "https://your-vercel-app.vercel.app/api";
+
 const Dashboard = () => {
   const [user, setUser] = useState(null);
-
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
   const [activeItem, setActiveItem] = useState("dashboard");
   const [isExpenseFormOpen, setIsExpenseFormOpen] = useState(false);
   const [expenses, setExpenses] = useState([]);
-  const [categories, setCategories] = useState([
-    "Food",
-    "Transportation",
-    "Entertainment",
-    "Utilities",
-    "Other",
-  ]);
+  const [categories, setCategories] = useState([]);
   const [budget, setBudget] = useState(1000);
+  const [showDeleteDialog, setShowDeleteDialog] = useState({
+    show: false,
+    type: null,
+    id: null,
+  });
   const { darkMode, toggleDarkMode } = useTheme();
+  const navigate = useNavigate();
 
   useEffect(() => {
     fetchExpenses();
     fetchCategories();
-    const savedBudget = JSON.parse(localStorage.getItem("budget")) || budget;
-    setBudget(savedBudget);
+    fetchUserAndBudget();
   }, []);
 
-    useEffect(() => {
-      localStorage.setItem("budget", JSON.stringify(budget));
-    }, [budget]);
-
-  const toggleSidebar = () => {
-    setIsSidebarOpen(!isSidebarOpen);
+  const fetchExpenses = async () => {
+    try {
+      const token = localStorage.getItem("token");
+      if (!token) throw new Error("No token found");
+      const response = await axios.get(
+        `${API_BASE_URL}/expense/getAllExpense`,
+        {
+          headers: { Authorization: `Bearer ${token}` },
+        }
+      );
+      setExpenses(response.data || []);
+    } catch (error) {
+      toast.error("Failed to fetch expenses");
+      console.error("Error fetching expenses:", error.message);
+      setExpenses([]);
+    }
   };
 
+  const fetchCategories = async () => {
+    try {
+      const token = localStorage.getItem("token");
+      if (!token) throw new Error("No token found");
+      const response = await axios.get(`${API_BASE_URL}/expense/categories`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      setCategories(response.data || []);
+    } catch (error) {
+      toast.error("Failed to fetch categories");
+      console.error("Error fetching categories:", error.message);
+      setCategories([]);
+    }
+  };
 
-const fetchExpenses = async () => {
-  try {
-    const token = localStorage.getItem("token"); // Get token from localStorage
-    const response = await axios.get(
-      `http://localhost:5000/api/expense/GetAllExpense`,
-      {
-        headers: {
-          Authorization: `Bearer ${token}`, // Use the token from localStorage
-        },
-      }
-    );
-    setExpenses(response.data); // Use response.data instead of response.json()
-  } catch (error) {
-    console.error("Error fetching expenses:", error);
-  }
-};
+  const fetchUserAndBudget = async () => {
+    try {
+      const token = localStorage.getItem("token");
+      if (!token) throw new Error("No token found");
+      const config = { headers: { Authorization: `Bearer ${token}` } };
+      const userResponse = await axios.get(`${API_BASE_URL}/getUser`, config);
+      setUser(userResponse.data);
+      const budgetResponse = await axios.get(
+        `${API_BASE_URL}/expense/getBudget`,
+        config
+      );
+      setBudget(budgetResponse.data.budget || 1000);
+    } catch (error) {
+      toast.error("Failed to fetch user or budget");
+      console.error("Error fetching user or budget:", error.message);
+    }
+  };
 
-const fetchCategories = async () => {
-  try {
-    const token = localStorage.getItem("token");
-    const response = await axios.get(
-      `http://localhost:5000/api/expense/categories`,
-      {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      }
-    );
-    setCategories(response.data.map((cat) => cat.name)); // Assuming the response is an array of category objects
-  } catch (error) {
-    console.error("Error fetching categories:", error);
-  }
-};
+  const addExpense = async (expense) => {
+    try {
+      const token = localStorage.getItem("token");
+      if (!token) throw new Error("No token found");
+      const response = await axios.post(
+        `${API_BASE_URL}/expense/createExpense`,
+        expense,
+        { headers: { Authorization: `Bearer ${token}` } }
+      );
+      setExpenses((prev) => [...prev, response.data]);
+      setIsExpenseFormOpen(false);
+      toast.success("Expense added successfully");
+    } catch (error) {
+      toast.error("Failed to add expense");
+      console.error("Error adding expense:", error.message);
+    }
+  };
 
+  const confirmDeleteExpense = async () => {
+    try {
+      const token = localStorage.getItem("token");
+      if (!token) throw new Error("No authentication token found");
+      const response = await axios.delete(
+        `${API_BASE_URL}/expense/deleteExpense/${showDeleteDialog.id}`,
+        { headers: { Authorization: `Bearer ${token}` } }
+      );
+      setExpenses((prevExpenses) =>
+        prevExpenses.filter((expense) => expense._id !== showDeleteDialog.id)
+      );
+      toast.success("Expense deleted successfully");
+    } catch (error) {
+      toast.error("Failed to delete expense");
+      console.error(
+        "Error deleting expense:",
+        error.response?.data || error.message
+      );
+    } finally {
+      setShowDeleteDialog({ show: false, type: null, id: null });
+    }
+  };
 
+  const deleteExpense = (id) => {
+    setShowDeleteDialog({ show: true, type: "expense", id: id });
+  };
 
-  // useEffect(() => {
-  //   const savedExpenses = JSON.parse(localStorage.getItem("expenses")) || [];
-  //   const savedCategories =
-  //     JSON.parse(localStorage.getItem("categories")) || categories;
-  //   const savedBudget = JSON.parse(localStorage.getItem("budget")) || budget;
-  //   setExpenses(savedExpenses);
-  //   setCategories(savedCategories);
-  //   setBudget(savedBudget);
-  // }, []);
+  const confirmDeleteCategory = async () => {
+    try {
+      const token = localStorage.getItem("token");
+      if (!token) throw new Error("No authentication token found");
+      const response = await axios.delete(
+        `${API_BASE_URL}/expense/deleteCategory/${showDeleteDialog.id}`,
+        { headers: { Authorization: `Bearer ${token}` } }
+      );
+      setCategories((prevCategories) =>
+        prevCategories.filter((cat) => cat._id !== showDeleteDialog.id)
+      );
+      toast.success("Category deleted successfully");
+    } catch (error) {
+      toast.error("Failed to delete category");
+      console.error(
+        "Error deleting category:",
+        error.response?.data || error.message
+      );
+    } finally {
+      setShowDeleteDialog({ show: false, type: null, id: null });
+    }
+  };
 
-  // useEffect(() => {
-  //   localStorage.setItem("expenses", JSON.stringify(expenses));
-  // }, [expenses]);
+  const deleteCategory = (id) => {
+    setShowDeleteDialog({ show: true, type: "category", id: id });
+  };
 
-  // useEffect(() => {
-  //   localStorage.setItem("categories", JSON.stringify(categories));
-  // }, [categories]);
+  const addCategory = async (category) => {
+    try {
+      const token = localStorage.getItem("token");
+      if (!token) throw new Error("No token found");
+      const response = await axios.post(
+        `${API_BASE_URL}/expense/categories`,
+        { name: category },
+        { headers: { Authorization: `Bearer ${token}` } }
+      );
+      setCategories((prev) => [...prev, response.data]);
+      toast.success("Category added successfully");
+    } catch (error) {
+      toast.error("Failed to add category");
+      console.error("Error adding category:", error.message);
+    }
+  };
 
-  // useEffect(() => {
-  //   localStorage.setItem("budget", JSON.stringify(budget));
-  // }, [budget]);
-
-  // const toggleSidebar = () => {
-  //   setIsSidebarOpen(!isSidebarOpen);
-  // };
-
-
- const addExpense = async (expense) => {
-   try {
-    const token = localStorage.getItem("token");
-     const response = await fetch(`http://localhost:5000/api/expense/createExpense`, {
-       method: "POST",
-       headers: {
-         "Content-Type": "application/json",
-         Authorization: `Bearer ${token}`,
-       },
-       body: JSON.stringify(expense),
-     });
-     const newExpense = await response.json();
-     setExpenses([...expenses, newExpense]);
-     setIsExpenseFormOpen(false);
-   } catch (error) {
-     console.error("Error adding expense:", error);
-   }
- };
-
-
- 
-const deleteExpense = async (id) => {
-  try {
-    const token = localStorage.getItem("token"); // Get token from localStorage
-    await axios.delete(
-      `http://localhost:5000/api/expense/deleteExpense/${id}`,
-      {
-        headers: {
-          Authorization: `Bearer ${token}`, // Use the token from localStorage
-        },
-      }
-    );
-    setExpenses(expenses.filter((expense) => expense._id !== id)); // Update state
-  } catch (error) {
-    console.error("Error deleting expense:", error);
-  }
-};
-
-const addCategory = async (category) => {
-  try {
-    const token = localStorage.getItem("token");
-    const response = await axios.post(
-      `http://localhost:5000/api/expense/categories`,
-      { name: category },
-      {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      }
-    );
-    setCategories([...categories, response.data.name]); // Assuming the response contains the new category object
-  } catch (error) {
-    console.error("Error adding category:", error);
-  }
-};
+  const updateCategory = async (id, newName) => {
+    try {
+      const token = localStorage.getItem("token");
+      if (!token) throw new Error("No token found");
+      const response = await axios.put(
+        `${API_BASE_URL}/expense/updateCategory/${id}`,
+        { name: newName },
+        { headers: { Authorization: `Bearer ${token}` } }
+      );
+      setCategories((prev) =>
+        prev.map((cat) => (cat._id === id ? response.data : cat))
+      );
+      toast.success("Category updated successfully");
+    } catch (error) {
+      toast.error("Failed to update category");
+      console.error("Error updating category:", error.message);
+    }
+  };
 
   const updateBudget = async (newBudget) => {
     try {
       const token = localStorage.getItem("token");
-
-      if (!token) {
-        console.error("No token found. Redirecting to login...");
-        navigate("/login");
-        return;
-      }
-
+      if (!token) throw new Error("No token found");
       const response = await axios.put(
-        "http://localhost:5000/api/expense/updateBudget",
+        `${API_BASE_URL}/expense/updateBudget`,
         { budget: newBudget },
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        }
+        { headers: { Authorization: `Bearer ${token}` } }
       );
-
-      console.log("Budget updated successfully:", response.data);
-      setBudget(response.data.updatedUser.budget); // Update state with the new budget
+      setBudget(response.data.updatedUser.budget);
+      toast.success("Budget updated successfully");
     } catch (error) {
-      console.error(
-        "Error updating budget:",
-        error.response?.data || error.message
-      );
-
-      if (error.response?.status === 403) {
-        console.error(
-          "Forbidden: Token may be invalid or expired. Redirecting to login..."
-        );
-        localStorage.removeItem("token");
-        navigate("/login");
-      }
+      toast.error("Failed to update budget");
+      console.error("Error updating budget:", error.message);
     }
   };
 
-
   const renderContent = () => {
+    console.log(
+      "Rendering content with expenses:",
+      expenses,
+      "categories:",
+      categories
+    );
     switch (activeItem) {
       case "dashboard":
         return (
@@ -231,7 +250,12 @@ const addCategory = async (category) => {
         return <ReportsContent expenses={expenses} />;
       case "settings":
         return (
-          <SettingsContent categories={categories} addCategory={addCategory} />
+          <SettingsContent
+            categories={categories}
+            addCategory={addCategory}
+            updateCategory={updateCategory}
+            deleteCategory={deleteCategory}
+          />
         );
       default:
         return (
@@ -244,48 +268,17 @@ const addCategory = async (category) => {
     }
   };
 
-  const navigate = useNavigate();
-
-  useEffect(() => {
-    const fetchUserAndBudget = async () => {
-      try {
-        const token = localStorage.getItem("token");
-        const config = { headers: { Authorization: `Bearer ${token}` } };
-
-        // Fetch user data
-        const userResponse = await axios.get(
-          "http://localhost:5000/api/getUser",
-          config
-        );
-        setUser(userResponse.data);
-
-        // Fetch budget from the backend
-        const budgetResponse = await axios.get(
-          "http://localhost:5000/api/expense/getBudget",
-          config
-        );
-        setBudget(budgetResponse.data.budget || 1000); // Use default value if budget is not set
-      } catch (error) {
-        console.error("Failed to fetch user or budget:", error.message);
-      }
-    };
-
-    fetchUserAndBudget();
-    fetchExpenses();
-    fetchCategories();
-  }, []);
-
-  
-  const handleLogout = () =>{
+  const handleLogout = () => {
     localStorage.removeItem("token");
     navigate("/");
-  }
+    toast.info("Logged out successfully");
+  };
 
   return (
     <div className="flex h-screen bg-gray-100 dark:bg-gray-900 transition-colors duration-200">
       <Sidebar
         isOpen={isSidebarOpen}
-        toggleSidebar={toggleSidebar}
+        toggleSidebar={() => setIsSidebarOpen(!isSidebarOpen)}
         activeItem={activeItem}
         setActiveItem={setActiveItem}
       />
@@ -293,8 +286,8 @@ const addCategory = async (category) => {
         <header className="bg-white dark:bg-gray-800 shadow-sm transition-colors duration-200">
           <div className="max-w-7xl mx-auto py-4 px-4 sm:px-6 lg:px-8 flex justify-between items-center">
             <button
-              onClick={toggleSidebar}
-              className="text-gray-500 dark:text-gray-400 hover:text-gray-600 dark:hover:text-gray-300"
+              onClick={() => setIsSidebarOpen(!isSidebarOpen)}
+              className="text-gray-500"
             >
               <svg
                 className="h-6 w-6"
@@ -314,51 +307,15 @@ const addCategory = async (category) => {
               Expense Tracker
             </h1>
             <div className="flex items-center space-x-4">
-              <button
-                onClick={toggleDarkMode}
-                className="text-gray-500 dark:text-gray-400 hover:text-gray-600 dark:hover:text-gray-300"
-              >
-                {darkMode ? (
-                  <svg
-                    className="h-6 w-6"
-                    fill="none"
-                    viewBox="0 0 24 24"
-                    stroke="currentColor"
-                  >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth={2}
-                      d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z"
-                    />
-                  </svg>
-                ) : (
-                  <svg
-                    className="h-6 w-6"
-                    fill="none"
-                    viewBox="0 0 24 24"
-                    stroke="currentColor"
-                  >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth={2}
-                      d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z"
-                    />
-                  </svg>
-                )}
+              <button onClick={toggleDarkMode} className="text-gray-500">
+                {darkMode ? "☀️" : "🌙"}
               </button>
-              <div className="flex items-center">
-                <img
-                  src="https://via.placeholder.com/40"
-                  alt="Profile"
-                  className="w-10 h-10 rounded-full mr-3"
-                />
-                <span className="font-semibold text-gray-700 dark:text-gray-300">
-                  {/* {user.name} */}
-                </span>
-              </div>
-              <button onClick={handleLogout}>logout</button>
+              <button
+                onClick={handleLogout}
+                className="text-gray-700 dark:text-gray-300"
+              >
+                Logout
+              </button>
             </div>
           </div>
         </header>
@@ -366,6 +323,8 @@ const addCategory = async (category) => {
           {renderContent()}
         </main>
       </div>
+
+      {/* Expense Form Modal */}
       {isExpenseFormOpen && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
           <div className="bg-white dark:bg-gray-800 rounded-lg p-8 max-w-md w-full">
@@ -377,8 +336,49 @@ const addCategory = async (category) => {
           </div>
         </div>
       )}
+
+      {/* Delete Confirmation Dialog */}
+      {showDeleteDialog.show && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <div className="bg-white dark:bg-gray-800 rounded-lg p-6 max-w-sm w-full shadow-xl">
+            <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">
+              Confirm Delete
+            </h3>
+            <p className="text-gray-600 dark:text-gray-300 mb-6">
+              Are you sure you want to delete this {showDeleteDialog.type}? This
+              action cannot be undone.
+            </p>
+            <div className="flex justify-end space-x-4">
+              <button
+                onClick={() =>
+                  setShowDeleteDialog({ show: false, type: null, id: null })
+                }
+                className="px-4 py-2 text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 rounded transition-colors"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={
+                  showDeleteDialog.type === "expense"
+                    ? confirmDeleteExpense
+                    : confirmDeleteCategory
+                }
+                className="px-4 py-2 bg-red-600 text-white rounded hover:bg-red-700 transition-colors"
+              >
+                Delete
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      <ToastContainer
+        position="top-right"
+        autoClose={3000}
+        hideProgressBar={false}
+      />
     </div>
   );
-}
+};
 
-export default Dashboard
+export default Dashboard;

@@ -7,8 +7,18 @@ const AddExpenseForm = ({ addExpense, closeForm, categories }) => {
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    if (!description || !amount || !category) return;
-    addExpense({ description, amount: parseFloat(amount), category });
+    if (!description || !amount || !category) {
+      alert("Please fill in all fields");
+      return;
+    }
+    addExpense({
+      description,
+      amount: parseFloat(amount),
+      category, // Send the category name as a string
+    });
+    setDescription("");
+    setAmount("");
+    setCategory("");
     closeForm();
   };
 
@@ -45,6 +55,7 @@ const AddExpenseForm = ({ addExpense, closeForm, categories }) => {
           id="amount"
           type="number"
           step="0.01"
+          min="0"
           placeholder="Expense amount"
           value={amount}
           onChange={(e) => setAmount(e.target.value)}
@@ -65,8 +76,8 @@ const AddExpenseForm = ({ addExpense, closeForm, categories }) => {
         >
           <option value="">Select a category</option>
           {categories.map((cat) => (
-            <option key={cat} value={cat}>
-              {cat}
+            <option key={cat._id} value={cat.name}>
+              {cat.name}
             </option>
           ))}
         </select>

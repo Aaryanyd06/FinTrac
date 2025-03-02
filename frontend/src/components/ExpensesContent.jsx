@@ -4,12 +4,15 @@ const ExpensesContent = ({ expenses, deleteExpense, categories }) => {
   const [filter, setFilter] = useState("all");
   const [sort, setSort] = useState("date");
 
-  const filteredExpenses = expenses.filter(
+  // Ensure expenses is an array
+  const safeExpenses = Array.isArray(expenses) ? expenses : [];
+
+  const filteredExpenses = safeExpenses.filter(
     (expense) => filter === "all" || expense.category === filter
   );
 
   const sortedExpenses = [...filteredExpenses].sort((a, b) => {
-    if (sort === "date") return b.id - a.id;
+    if (sort === "date") return new Date(b.date) - new Date(a.date);
     if (sort === "amount") return b.amount - a.amount;
     return 0;
   });
@@ -35,8 +38,8 @@ const ExpensesContent = ({ expenses, deleteExpense, categories }) => {
           >
             <option value="all">All Categories</option>
             {categories.map((category) => (
-              <option key={category} value={category}>
-                {category}
+              <option key={category._id} value={category.name}>
+                {category.name}
               </option>
             ))}
           </select>
@@ -65,23 +68,26 @@ const ExpensesContent = ({ expenses, deleteExpense, categories }) => {
         <ul className="divide-y divide-gray-200 dark:divide-gray-700">
           {sortedExpenses.map((expense) => (
             <li
-              key={expense.id}
+              key={expense._id}
               className="py-4 flex justify-between items-center"
             >
               <div>
                 <p className="text-sm font-medium text-gray-900 dark:text-white">
-                  {expense.description}
+                  {expense.description || "No description"}
                 </p>
                 <p className="text-sm text-gray-500 dark:text-gray-400">
-                  {expense.category}
+                  {expense.category || "Uncategorized"} -{" "}
+                  {expense.date
+                    ? new Date(expense.date).toLocaleDateString()
+                    : "No date"}
                 </p>
               </div>
               <div className="flex items-center">
                 <span className="text-sm font-medium text-gray-900 dark:text-white mr-4">
-                  ${expense.amount.toFixed(2)}
+                  ${expense.amount?.toFixed(2) || "0.00"}
                 </span>
                 <button
-                  onClick={() => deleteExpense(expense._id)} // Ensure expense._id is being passed
+                  onClick={() => deleteExpense(expense._id)}
                   className="text-red-600 hover:text-red-800 dark:text-red-400 dark:hover:text-red-300 transition duration-200"
                 >
                   Delete
