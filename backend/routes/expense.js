@@ -1,6 +1,6 @@
 import express from 'express'
 import { authenticateToken } from '../middlewares/jwt.js';
-import { addCategory, createExpense, deleteExpense, GetAllExpense, getBudget, getCategories, updateBudget, updateExpense } from '../controllers/expenseController.js';
+import { addCategory, createExpense, deleteCategory, deleteExpense, GetAllExpense, getBudget, getCategories, updateBudget, updateCategory, updateExpense } from '../controllers/expenseController.js';
 
 const router = express.Router();   
 
@@ -14,6 +14,7 @@ router.route("/getBudget").get(authenticateToken, getBudget);
 
 router.route("/categories").post(authenticateToken, addCategory);
 router.route("/categories").get(authenticateToken, getCategories);
-
+router.put("/updateCategory/:id", authenticateToken, updateCategory);
+router.delete("/deleteCategory/:id", authenticateToken, deleteCategory);
 
 export default router;
