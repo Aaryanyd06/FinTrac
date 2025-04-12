@@ -5,6 +5,7 @@ import connectDatabase from "./config/db.js";
 import auth from "./routes/auth.js";
 import expense from "./routes/expense.js";
 import cors from "cors";
+import serverless from "serverless-http"; // <-- this is crucial for Vercel
 
 dotenv.config();
 
@@ -17,7 +18,7 @@ connectDatabase();
 // Middleware
 app.use(
   cors({
-    origin: "*", // Allow all origins for testing
+    origin: "*", // Allow all origins for now — restrict later in production
     credentials: true,
     methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
     allowedHeaders: ["Content-Type", "Authorization"],
@@ -40,7 +41,7 @@ app.get("/health", (req, res) => {
   res.status(200).send("API is healthy");
 });
 
-// Start server in development mode
+// Start local dev server only if NOT in production/serverless
 if (process.env.NODE_ENV !== "production") {
   const PORT = process.env.PORT || 5000;
   app.listen(PORT, () =>
@@ -52,5 +53,12 @@ if (process.env.NODE_ENV !== "production") {
   );
 }
 
-// Export for Vercel serverless functions
+// Export Express app and serverless handler for Vercel
+const handler = serverless(app);
+export const config = {
+  api: {
+    bodyParser: false, // Vercel optimization for raw body
+  },
+};
+export { handler };
 export default app;
