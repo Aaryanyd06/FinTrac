@@ -5,10 +5,11 @@ dotenv.config();
 
 const connectDatabase = async () => {
   try {
-    const { dbURI } = process.env;
+    const dbURI = process.env.DBURI;
     if (!dbURI) {
-      throw new Error("Environment variable 'dbURI' is not defined");
+      throw new Error("Environment variable 'DBURI' is not defined");
     }
+
     await mongoose.connect(dbURI, {
       useNewUrlParser: true,
       useUnifiedTopology: true,
@@ -16,7 +17,10 @@ const connectDatabase = async () => {
     console.log("Database connected successfully");
   } catch (error) {
     console.error(`Database connection failed: ${error.message}`);
-    process.exit(1); // Exit process with failure
+    // Don't exit process in production as it will crash the serverless function
+    if (process.env.NODE_ENV !== "production") {
+      process.exit(1);
+    }
   }
 };
 
