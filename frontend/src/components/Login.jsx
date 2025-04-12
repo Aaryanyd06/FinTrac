@@ -10,10 +10,13 @@ const Login = () => {
 
   const handleLogin = async () => {
     try {
-      const res = await axios.post("http://localhost:5000/api/signin", {
-        email,
-        password,
-      });
+      const res = await axios.post(
+        `${import.meta.env.VITE_API_BASE_URL}/signin`,
+        {
+          email,
+          password,
+        }
+      );
       localStorage.setItem("token", res.data.token); // Store JWT token
       navigate("/dashboard"); // Redirect to dashboard
     } catch (error) {
@@ -24,9 +27,12 @@ const Login = () => {
 
   const handleGoogleSuccess = async (credentialResponse) => {
     try {
-      const { data } = await axios.post("http://localhost:5000/api/google", {
-        tokenId: credentialResponse.credential,
-      });
+      const { data } = await axios.post(
+        `${import.meta.env.VITE_API_BASE_URL}/google`,
+        {
+          tokenId: credentialResponse.credential,
+        }
+      );
       localStorage.setItem("token", data.token);
       navigate("/dashboard");
     } catch (error) {
@@ -74,7 +80,7 @@ const Login = () => {
           </button>
         </div>
         <div className="flex items-center justify-between mt-4">
-          <p className="text-gray-600 text-sm">Don’t have an account?</p>
+          <p className="text-gray-600 text-sm">Don&apos;t have an account?</p>
           <button
             onClick={() => navigate("/signup")}
             className="text-blue-500 hover:underline text-sm"
