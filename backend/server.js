@@ -13,7 +13,7 @@ const app = express();
 connectDatabase();
 
 // Middleware
-app.use(cors({ origin: "http://localhost:5173" })); 
+app.use(cors({ origin: process.env.FRONTEND_URL })); 
 app.use((req, res, next) => {
   res.setHeader("Cross-Origin-Opener-Policy", "same-origin");
   res.setHeader("Cross-Origin-Embedder-Policy", "require-corp");

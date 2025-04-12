@@ -23,6 +23,7 @@ const Sidebar = ({ isOpen, toggleSidebar, activeItem, setActiveItem }) => {
     { id: "budget", icon: "📅", text: "Budget" },
     { id: "reports", icon: "📈", text: "Reports" },
     { id: "settings", icon: "⚙️", text: "Settings" },
+    { id: "profile", icon: "👤", text: "Profile" }, // Added Profile item
   ];
 
   return (

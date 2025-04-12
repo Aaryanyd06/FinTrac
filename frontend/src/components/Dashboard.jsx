@@ -11,6 +11,7 @@ import BudgetContent from "./BudgetContent";
 import ReportsContent from "./ReportsContent";
 import SettingsContent from "./SettingsContent";
 import AddExpenseForm from "./AddExpenseForm";
+import Profile from "./ProfileContent";
 import { useTheme } from "./ThemeContext";
 
 const API_BASE_URL =
@@ -257,6 +258,8 @@ const Dashboard = () => {
             deleteCategory={deleteCategory}
           />
         );
+      case "profile":
+        return <Profile user={user} fetchUser={fetchUserAndBudget} />;
       default:
         return (
           <DashboardContent
@@ -310,6 +313,23 @@ const Dashboard = () => {
               <button onClick={toggleDarkMode} className="text-gray-500">
                 {darkMode ? "☀️" : "🌙"}
               </button>
+              <div className="flex items-center space-x-2">
+                {user?.avatar ? (
+                  <img
+                    src={user.avatar}
+                    alt="Profile"
+                    className="w-8 h-8 rounded-full"
+                  />
+                ) : (
+                  <div className="w-8 h-8 rounded-full bg-gray-300 dark:bg-gray-700 flex items-center justify-center">
+                    <span className="text-lg">👤</span>{" "}
+                    {/* Default profile icon */}
+                  </div>
+                )}
+                <span className="text-gray-700 dark:text-gray-300">
+                  {user?.name}
+                </span>
+              </div>
               <button
                 onClick={handleLogout}
                 className="text-gray-700 dark:text-gray-300"
