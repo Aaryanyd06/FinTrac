@@ -30,7 +30,7 @@ const Dashboard = () => {
     type: null,
     id: null,
   });
-  const { darkMode, toggleDarkMode } = useTheme();
+  const { darkMode } = useTheme();
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -202,12 +202,12 @@ const Dashboard = () => {
     try {
       const token = localStorage.getItem("token");
       if (!token) throw new Error("No token found");
-      const response = await axios.put(
+      await axios.put(
         `${API_BASE_URL}/expense/updateBudget`,
         { budget: newBudget },
         { headers: { Authorization: `Bearer ${token}` } }
       );
-      setBudget(response.data.updatedUser.budget);
+      setBudget(newBudget);
       toast.success("Budget updated successfully");
     } catch (error) {
       toast.error("Failed to update budget");
@@ -216,12 +216,6 @@ const Dashboard = () => {
   };
 
   const renderContent = () => {
-    console.log(
-      "Rendering content with expenses:",
-      expenses,
-      "categories:",
-      categories
-    );
     switch (activeItem) {
       case "dashboard":
         return (
@@ -259,7 +253,7 @@ const Dashboard = () => {
           />
         );
       case "profile":
-        return <Profile user={user} fetchUser={fetchUserAndBudget} />;
+        return <Profile user={user} />;
       default:
         return (
           <DashboardContent
@@ -274,84 +268,75 @@ const Dashboard = () => {
   const handleLogout = () => {
     localStorage.removeItem("token");
     navigate("/");
-    toast.info("Logged out successfully");
   };
 
   return (
-    <div className="flex h-screen bg-gray-100 dark:bg-gray-900 transition-colors duration-200">
+    <div className="flex h-screen bg-gray-50 dark:bg-gray-900 transition-colors duration-200">
       <Sidebar
         isOpen={isSidebarOpen}
         toggleSidebar={() => setIsSidebarOpen(!isSidebarOpen)}
         activeItem={activeItem}
         setActiveItem={setActiveItem}
       />
-      <div className="flex-1 overflow-auto">
-        <header className="bg-white dark:bg-gray-800 shadow-sm transition-colors duration-200">
-          <div className="max-w-7xl mx-auto py-4 px-4 sm:px-6 lg:px-8 flex justify-between items-center">
-            <button
-              onClick={() => setIsSidebarOpen(!isSidebarOpen)}
-              className="text-gray-500"
-            >
-              <svg
-                className="h-6 w-6"
-                fill="none"
-                viewBox="0 0 24 24"
-                stroke="currentColor"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M4 6h16M4 12h16M4 18h16"
-                />
-              </svg>
-            </button>
-            <h1 className="text-2xl font-semibold text-gray-900 dark:text-white">
-              Expense Tracker
+
+      <div className="flex flex-col flex-1 overflow-hidden">
+        {/* Header */}
+        <header className="bg-white dark:bg-gray-800 shadow-sm z-10 transition-colors duration-200">
+          <div className="px-6 py-4 flex justify-between items-center">
+            <h1 className="text-xl font-semibold text-gray-800 dark:text-white capitalize">
+              {activeItem}
             </h1>
             <div className="flex items-center space-x-4">
-              <button onClick={toggleDarkMode} className="text-gray-500">
-                {darkMode ? "☀️" : "🌙"}
-              </button>
-              <div className="flex items-center space-x-2">
-                {user?.avatar ? (
-                  <img
-                    src={user.avatar}
-                    alt="Profile"
-                    className="w-8 h-8 rounded-full"
-                  />
-                ) : (
-                  <div className="w-8 h-8 rounded-full bg-gray-300 dark:bg-gray-700 flex items-center justify-center">
-                    <span className="text-lg">👤</span>{" "}
-                    {/* Default profile icon */}
-                  </div>
-                )}
-                <span className="text-gray-700 dark:text-gray-300">
-                  {user?.name}
-                </span>
-              </div>
+              {user && (
+                <div className="text-sm text-gray-600 dark:text-gray-300">
+                  Welcome, {user.name || user.email}
+                </div>
+              )}
               <button
                 onClick={handleLogout}
-                className="text-gray-700 dark:text-gray-300"
+                className="btn btn-outline text-sm"
               >
                 Logout
               </button>
             </div>
           </div>
         </header>
-        <main className="max-w-7xl mx-auto py-6 sm:px-6 lg:px-8">
-          {renderContent()}
+
+        {/* Main content */}
+        <main className="flex-1 overflow-y-auto p-4 md:p-6">
+          <div className="container mx-auto">{renderContent()}</div>
         </main>
       </div>
 
-      {/* Expense Form Modal */}
+      {/* Add Expense Modal */}
       {isExpenseFormOpen && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-          <div className="bg-white dark:bg-gray-800 rounded-lg p-8 max-w-md w-full">
+          <div className="bg-white dark:bg-gray-800 rounded-lg shadow-xl max-w-md w-full p-6 transition-colors duration-200">
+            <div className="flex justify-between items-center mb-4">
+              <h2 className="text-xl font-semibold text-gray-800 dark:text-white">
+                Add New Expense
+              </h2>
+              <button
+                onClick={() => setIsExpenseFormOpen(false)}
+                className="text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200"
+              >
+                <svg
+                  className="w-5 h-5"
+                  fill="currentColor"
+                  viewBox="0 0 20 20"
+                >
+                  <path
+                    fillRule="evenodd"
+                    d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z"
+                    clipRule="evenodd"
+                  />
+                </svg>
+              </button>
+            </div>
             <AddExpenseForm
               addExpense={addExpense}
-              closeForm={() => setIsExpenseFormOpen(false)}
               categories={categories}
+              onCancel={() => setIsExpenseFormOpen(false)}
             />
           </div>
         </div>
@@ -360,10 +345,10 @@ const Dashboard = () => {
       {/* Delete Confirmation Dialog */}
       {showDeleteDialog.show && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-          <div className="bg-white dark:bg-gray-800 rounded-lg p-6 max-w-sm w-full shadow-xl">
-            <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">
+          <div className="bg-white dark:bg-gray-800 rounded-lg shadow-xl max-w-md w-full p-6 transition-colors duration-200">
+            <h2 className="text-xl font-semibold text-gray-800 dark:text-white mb-4">
               Confirm Delete
-            </h3>
+            </h2>
             <p className="text-gray-600 dark:text-gray-300 mb-6">
               Are you sure you want to delete this {showDeleteDialog.type}? This
               action cannot be undone.
@@ -373,7 +358,7 @@ const Dashboard = () => {
                 onClick={() =>
                   setShowDeleteDialog({ show: false, type: null, id: null })
                 }
-                className="px-4 py-2 text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 rounded transition-colors"
+                className="btn btn-outline"
               >
                 Cancel
               </button>
@@ -383,7 +368,7 @@ const Dashboard = () => {
                     ? confirmDeleteExpense
                     : confirmDeleteCategory
                 }
-                className="px-4 py-2 bg-red-600 text-white rounded hover:bg-red-700 transition-colors"
+                className="btn btn-danger"
               >
                 Delete
               </button>
@@ -392,11 +377,7 @@ const Dashboard = () => {
         </div>
       )}
 
-      <ToastContainer
-        position="top-right"
-        autoClose={3000}
-        hideProgressBar={false}
-      />
+      <ToastContainer position="bottom-right" />
     </div>
   );
 };
