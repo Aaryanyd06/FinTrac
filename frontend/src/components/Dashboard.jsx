@@ -231,6 +231,7 @@ const Dashboard = () => {
             expenses={expenses}
             deleteExpense={deleteExpense}
             categories={categories}
+            openExpenseForm={() => setIsExpenseFormOpen(true)}
           />
         );
       case "budget":
