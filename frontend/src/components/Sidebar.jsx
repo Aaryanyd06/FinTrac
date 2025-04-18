@@ -127,15 +127,17 @@ const SidebarIcon = ({ icon, text, isOpen, isActive, onClick }) => (
   <li className="mb-2">
     <button
       onClick={onClick}
-      className={`flex items-center w-full py-3 px-4 rounded-lg transition-all duration-200 ${
+      className={`flex items-center ${
+        isOpen ? "justify-start" : "justify-center"
+      } w-full py-3 px-4 rounded-lg transition-all duration-200 ${
         isActive
           ? "bg-primary-500 text-white"
           : "text-gray-500 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800 hover:text-primary-600 dark:hover:text-primary-400"
       }`}
     >
       <div
-        className={`w-5 h-5 ${isOpen ? "mr-4" : "mx-auto"} ${
-          isActive ? "text-white" : ""
+        className={`w-5 h-5 flex-shrink-0 ${isOpen ? "mr-3" : ""} ${
+          isActive ? "text-white" : "text-current"
         }`}
       >
         {icon}
@@ -280,9 +282,11 @@ const Sidebar = ({ isOpen, toggleSidebar, activeItem, setActiveItem }) => {
         <div className="p-4 border-t border-gray-200 dark:border-gray-700">
           <button
             onClick={toggleDarkMode}
-            className={`flex items-center w-full py-2 px-4 rounded-lg transition-colors hover:bg-gray-100 dark:hover:bg-gray-800 text-gray-500 dark:text-gray-400`}
+            className={`flex items-center ${
+              isOpen ? "justify-start" : "justify-center"
+            } w-full py-2 px-4 rounded-lg transition-colors hover:bg-gray-100 dark:hover:bg-gray-800 text-gray-500 dark:text-gray-400`}
           >
-            <div className={`w-5 h-5 ${isOpen ? "mr-4" : "mx-auto"}`}>
+            <div className={`w-5 h-5 flex-shrink-0 ${isOpen ? "mr-3" : ""}`}>
               {darkMode ? (
                 <MoonIcon className="w-full h-full" />
               ) : (

@@ -3,21 +3,22 @@ import Signup from "./components/Signup";
 import Login from "./components/Login";
 import Dashboard from "./components/Dashboard";
 import ProtectedRoute from "./components/ProtectedRoute";
+import ForgotPassword from "./components/ForgotPassword";
+import ResetPassword from "./components/ResetPassword";
+import LandingPage from "./components/LandingPage";
 import { Navigate } from "react-router-dom";
 import { ThemeProvider } from "./components/ThemeContext.jsx";
 
 function App() {
-  const token = localStorage.getItem("token"); // Check for token availability
-
   return (
     <ThemeProvider>
       <Router>
         <Routes>
+          <Route path="/" element={<LandingPage />} />
           <Route path="/signup" element={<Signup />} />
-          <Route
-            path="/"
-            element={token ? <Navigate to="/dashboard" replace /> : <Login />}
-          />
+          <Route path="/login" element={<Login />} />
+          <Route path="/forgot-password" element={<ForgotPassword />} />
+          <Route path="/reset-password/:token" element={<ResetPassword />} />
           <Route
             path="/dashboard"
             element={
@@ -26,6 +27,7 @@ function App() {
               </ProtectedRoute>
             }
           />
+          <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>
       </Router>
     </ThemeProvider>

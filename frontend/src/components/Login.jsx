@@ -1,8 +1,12 @@
 import { useState } from "react";
-import axios from "axios";
 import { GoogleLogin } from "@react-oauth/google";
 import { useNavigate } from "react-router-dom";
 import { useTheme } from "./ThemeContext";
+import {
+  login,
+  googleLogin as googleLoginService,
+} from "../services/authService";
+import { motion } from "framer-motion";
 
 const Login = () => {
   const [email, setEmail] = useState("");
@@ -23,15 +27,11 @@ const Login = () => {
     setError("");
 
     try {
-      const res = await axios.post(
-        `${import.meta.env.VITE_API_BASE_URL}/signin`,
-        { email, password }
-      );
-      localStorage.setItem("token", res.data.token);
+      await login({ email, password });
       navigate("/dashboard");
     } catch (error) {
-      console.error(error.response?.data?.message || "Login failed");
-      setError(error.response?.data?.message || "Invalid email or password");
+      console.error(error.message || "Login failed");
+      setError(error.message || "Invalid email or password");
     } finally {
       setLoading(false);
     }
@@ -42,19 +42,10 @@ const Login = () => {
     setError("");
 
     try {
-      const { data } = await axios.post(
-        `${import.meta.env.VITE_API_BASE_URL}/google`,
-        {
-          tokenId: credentialResponse.credential,
-        }
-      );
-      localStorage.setItem("token", data.token);
+      await googleLoginService(credentialResponse.credential);
       navigate("/dashboard");
     } catch (error) {
-      console.error(
-        "Google Sign-In failed:",
-        error.response?.data || error.message
-      );
+      console.error("Google Sign-In failed:", error.message);
       setError("Google Sign-In was unsuccessful. Please try again.");
     } finally {
       setLoading(false);
@@ -67,31 +58,36 @@ const Login = () => {
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-primary-50 to-secondary-50 dark:from-gray-900 dark:to-gray-800 p-4">
-      <div className="w-full max-w-md">
+      <motion.div
+        className="w-full max-w-md"
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.5 }}
+      >
         <div className="card bg-white dark:bg-gray-800 shadow-2xl overflow-hidden">
-          <div className="bg-gradient-to-r from-primary-600 to-secondary-600 p-6 text-white">
-            <h1 className="text-3xl font-display font-bold text-center mb-2">
+          <div className="bg-gradient-to-r from-primary-600 to-secondary-600 p-5 text-white">
+            <h1 className="text-2xl font-display font-bold text-center mb-1">
               Expense Tracker
             </h1>
-            <p className="text-white/80 text-center">
+            <p className="text-white/80 text-center text-sm">
               Manage your finances seamlessly
             </p>
           </div>
 
-          <div className="p-8">
-            <h2 className="text-2xl font-display font-semibold text-gray-800 dark:text-white text-center mb-6">
+          <div className="p-6">
+            <h2 className="text-xl font-display font-semibold text-gray-800 dark:text-white text-center mb-5">
               Welcome Back
             </h2>
 
             {error && (
-              <div className="mb-4 p-3 bg-danger-50 text-danger-700 dark:bg-danger-900 dark:text-danger-300 rounded-lg text-sm">
+              <div className="mb-4 p-2 bg-danger-50 text-danger-700 dark:bg-danger-900 dark:text-danger-300 rounded-lg text-xs">
                 {error}
               </div>
             )}
 
-            <form onSubmit={handleLogin} className="space-y-5">
+            <form onSubmit={handleLogin} className="space-y-3">
               <div>
-                <label htmlFor="email" className="label">
+                <label htmlFor="email" className="label text-xs mb-1">
                   Email Address
                 </label>
                 <input
@@ -100,34 +96,45 @@ const Login = () => {
                   placeholder="you@example.com"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
-                  className="input"
+                  className="input py-2 text-sm placeholder:text-gray-400 placeholder:text-sm"
                   required
                 />
               </div>
 
               <div>
-                <label htmlFor="password" className="label">
+                <label htmlFor="password" className="label text-xs mb-1">
                   Password
                 </label>
                 <input
                   id="password"
                   type="password"
-                  placeholder="••••••••"
+                  placeholder="Your password"
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
-                  className="input"
+                  className="input py-2 text-sm placeholder:text-gray-400 placeholder:text-sm"
                   required
                 />
+                <div className="flex justify-end mt-1">
+                  <button
+                    type="button"
+                    onClick={() => navigate("/forgot-password")}
+                    className="text-xxs text-primary-600 hover:text-primary-800 dark:text-primary-400 dark:hover:text-primary-300"
+                  >
+                    Forgot password?
+                  </button>
+                </div>
               </div>
 
-              <button
+              <motion.button
                 type="submit"
                 disabled={loading}
-                className="btn btn-primary w-full flex justify-center"
+                className="btn btn-primary w-full flex justify-center items-center h-10 mt-2 text-sm"
+                whileHover={{ scale: 1.02 }}
+                whileTap={{ scale: 0.98 }}
               >
                 {loading ? (
                   <svg
-                    className="animate-spin h-5 w-5 text-white"
+                    className="animate-spin h-4 w-4 text-white"
                     xmlns="http://www.w3.org/2000/svg"
                     fill="none"
                     viewBox="0 0 24 24"
@@ -149,25 +156,25 @@ const Login = () => {
                 ) : (
                   "Sign In"
                 )}
-              </button>
+              </motion.button>
             </form>
 
-            <div className="mt-6">
+            <div className="mt-5">
               <div className="relative flex items-center justify-center">
                 <div className="border-t border-gray-300 dark:border-gray-600 w-full"></div>
-                <div className="px-4 text-sm text-gray-500 dark:text-gray-400 bg-white dark:bg-gray-800 z-10">
-                  OR CONTINUE WITH
+                <div className="px-3 text-xs uppercase tracking-wider text-gray-500 dark:text-gray-400 bg-white dark:bg-gray-800 z-10 mx-2">
+                  or
                 </div>
                 <div className="border-t border-gray-300 dark:border-gray-600 w-full"></div>
               </div>
 
-              <div className="mt-4">
+              <div className="mt-3">
                 <GoogleLogin
                   onSuccess={handleGoogleSuccess}
                   onError={handleGoogleError}
                   type="standard"
                   theme={darkMode ? "filled_black" : "outline"}
-                  size="large"
+                  size="medium"
                   width="100%"
                   text="signin_with"
                   shape="rectangular"
@@ -175,20 +182,21 @@ const Login = () => {
               </div>
             </div>
 
-            <div className="mt-8 text-center">
-              <p className="text-gray-600 dark:text-gray-400 text-sm">
+            <div className="mt-6 text-center">
+              <p className="text-gray-600 dark:text-gray-400 text-xs">
                 Don&apos;t have an account?{" "}
-                <button
+                <motion.button
                   onClick={() => navigate("/signup")}
                   className="text-primary-600 hover:text-primary-800 dark:text-primary-400 dark:hover:text-primary-300 font-medium"
+                  whileHover={{ scale: 1.05 }}
                 >
                   Sign Up
-                </button>
+                </motion.button>
               </p>
             </div>
           </div>
         </div>
-      </div>
+      </motion.div>
     </div>
   );
 };

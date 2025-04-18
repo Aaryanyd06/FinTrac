@@ -13,6 +13,7 @@ import SettingsContent from "./SettingsContent";
 import AddExpenseForm from "./AddExpenseForm";
 import Profile from "./ProfileContent";
 import { useTheme } from "./ThemeContext";
+import { getUserProfile } from "../services/authService";
 
 const API_BASE_URL =
   import.meta.env.VITE_API_BASE_URL || "https://your-vercel-app.vercel.app/api";
@@ -76,9 +77,13 @@ const Dashboard = () => {
     try {
       const token = localStorage.getItem("token");
       if (!token) throw new Error("No token found");
+
+      // Use the auth service to get user data
+      const userData = await getUserProfile();
+      setUser(userData);
+
+      // Get budget data
       const config = { headers: { Authorization: `Bearer ${token}` } };
-      const userResponse = await axios.get(`${API_BASE_URL}/getUser`, config);
-      setUser(userResponse.data);
       const budgetResponse = await axios.get(
         `${API_BASE_URL}/expense/getBudget`,
         config
