@@ -385,7 +385,7 @@ const Dashboard = () => {
         </div>
       )}
 
-      <ToastContainer position="bottom-right" />
+      <ToastContainer position="top-center" />
     </div>
   );
 };
