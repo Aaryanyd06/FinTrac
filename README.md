@@ -2,9 +2,12 @@
 
 A full-featured expense tracking application built with React and Node.js that helps users manage their personal finances.
 
+### Landing Page
+
 ![Landing Page](frontend/src/assets/landing-page-dark.png)
 ![Landing Page](frontend/src/assets/landing-page-light.png)
 
+### Dashboard Page
 
 ![Dashboard Overview](frontend/src/assets/dashboard-img.png)
 
