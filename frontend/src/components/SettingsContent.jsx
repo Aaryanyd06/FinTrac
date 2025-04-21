@@ -235,7 +235,7 @@ const SettingsContent = ({
                 {safeCategories.map((category) => (
                   <li
                     key={category._id}
-                    className="hover:bg-gray-50 dark:hover:bg-gray-750 transition-colors duration-150"
+                    className="hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors duration-150"
                   >
                     {editingCategory === category._id ? (
                       <form
