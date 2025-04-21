@@ -12,15 +12,15 @@ import ReportsContent from "./ReportsContent";
 import SettingsContent from "./SettingsContent";
 import AddExpenseForm from "./AddExpenseForm";
 import Profile from "./ProfileContent";
-import { useTheme } from "./ThemeContext";
 import { getUserProfile } from "../services/authService";
+import GitHubStarNavButton from "./GitHubStarNavButton";
 
 const API_BASE_URL =
   import.meta.env.VITE_API_BASE_URL || "https://your-vercel-app.vercel.app/api";
 
 const Dashboard = () => {
   const [user, setUser] = useState(null);
-  const [isSidebarOpen, setIsSidebarOpen] = useState(true);
+  const [isSidebarOpen, setIsSidebarOpen] = useState(window.innerWidth >= 768);
   const [activeItem, setActiveItem] = useState("dashboard");
   const [isExpenseFormOpen, setIsExpenseFormOpen] = useState(false);
   const [expenses, setExpenses] = useState([]);
@@ -31,7 +31,6 @@ const Dashboard = () => {
     type: null,
     id: null,
   });
-  const { darkMode } = useTheme();
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -117,7 +116,7 @@ const Dashboard = () => {
     try {
       const token = localStorage.getItem("token");
       if (!token) throw new Error("No authentication token found");
-      const response = await axios.delete(
+      await axios.delete(
         `${API_BASE_URL}/expense/deleteExpense/${showDeleteDialog.id}`,
         { headers: { Authorization: `Bearer ${token}` } }
       );
@@ -144,7 +143,7 @@ const Dashboard = () => {
     try {
       const token = localStorage.getItem("token");
       if (!token) throw new Error("No authentication token found");
-      const response = await axios.delete(
+      await axios.delete(
         `${API_BASE_URL}/expense/deleteCategory/${showDeleteDialog.id}`,
         { headers: { Authorization: `Bearer ${token}` } }
       );
@@ -277,7 +276,7 @@ const Dashboard = () => {
   };
 
   return (
-    <div className="flex h-screen bg-gray-50 dark:bg-gray-900 transition-colors duration-200">
+    <div className="flex flex-col md:flex-row h-screen bg-gray-50 dark:bg-gray-900 transition-colors duration-200">
       <Sidebar
         isOpen={isSidebarOpen}
         toggleSidebar={() => setIsSidebarOpen(!isSidebarOpen)}
@@ -285,16 +284,19 @@ const Dashboard = () => {
         setActiveItem={setActiveItem}
       />
 
-      <div className="flex flex-col flex-1 overflow-hidden">
+      <div className="flex flex-col flex-1 overflow-hidden md:ml-0">
         {/* Header */}
         <header className="bg-white dark:bg-gray-800 shadow-sm z-10 transition-colors duration-200">
           <div className="px-6 py-4 flex justify-between items-center">
-            <h1 className="text-xl font-semibold text-gray-800 dark:text-white capitalize">
-              {activeItem}
-            </h1>
+            <div className="flex items-center space-x-4">
+              <h1 className="text-xl font-semibold text-gray-800 dark:text-white capitalize ml-8 md:ml-0">
+                {activeItem}
+              </h1>
+              <GitHubStarNavButton className="hidden md:flex" />
+            </div>
             <div className="flex items-center space-x-4">
               {user && (
-                <div className="text-sm text-gray-600 dark:text-gray-300">
+                <div className="hidden sm:block text-sm text-gray-600 dark:text-gray-300">
                   Welcome, {user.name || user.email}
                 </div>
               )}

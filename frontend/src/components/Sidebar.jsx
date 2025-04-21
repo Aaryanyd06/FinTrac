@@ -1,5 +1,6 @@
 import { useTheme } from "./ThemeContext.jsx";
 import PropTypes from "prop-types";
+import { useEffect } from "react";
 
 // SVG Icon components for cleaner code
 const DashboardIcon = ({ className }) => (
@@ -162,6 +163,38 @@ SidebarIcon.propTypes = {
 const Sidebar = ({ isOpen, toggleSidebar, activeItem, setActiveItem }) => {
   const { darkMode, toggleDarkMode } = useTheme();
 
+  // Lock body scroll when sidebar is open on mobile
+  useEffect(() => {
+    const handleResize = () => {
+      if (window.innerWidth > 768 && !isOpen) {
+        toggleSidebar();
+      }
+    };
+
+    // Add event listener
+    window.addEventListener("resize", handleResize);
+
+    // Clean up
+    return () => {
+      window.removeEventListener("resize", handleResize);
+    };
+  }, [isOpen, toggleSidebar]);
+
+  // Lock/unlock body scroll when mobile sidebar is open
+  useEffect(() => {
+    if (window.innerWidth < 768) {
+      if (isOpen) {
+        document.body.style.overflow = "hidden";
+      } else {
+        document.body.style.overflow = "";
+      }
+    }
+
+    return () => {
+      document.body.style.overflow = "";
+    };
+  }, [isOpen]);
+
   const items = [
     {
       id: "dashboard",
@@ -195,113 +228,157 @@ const Sidebar = ({ isOpen, toggleSidebar, activeItem, setActiveItem }) => {
     },
   ];
 
+  const handleItemClick = (itemId) => {
+    setActiveItem(itemId);
+    // Close sidebar on mobile when item is clicked
+    if (window.innerWidth < 768) {
+      toggleSidebar();
+    }
+  };
+
   return (
-    <div
-      className={`bg-white dark:bg-gray-800 border-r border-gray-200 dark:border-gray-700 shadow-lg transition-all duration-300 ease-in-out h-screen overflow-hidden ${
-        isOpen ? "w-64" : "w-20"
-      }`}
-    >
-      <div className="flex flex-col h-full">
-        {/* Logo and app name */}
-        <div className="flex items-center justify-between p-4 border-b border-gray-200 dark:border-gray-700">
-          {isOpen ? (
-            <h1 className="text-xl font-bold text-primary-600 dark:text-primary-400 flex items-center">
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                className="h-6 w-6 mr-2"
-                viewBox="0 0 24 24"
-                fill="currentColor"
-              >
-                <path d="M11.8 10.9c-2.27-.59-3-1.2-3-2.15 0-1.09 1.01-1.85 2.7-1.85 1.78 0 2.44.85 2.5 2.1h2.21c-.07-1.72-1.12-3.3-3.21-3.81V3h-3v2.16c-1.94.42-3.5 1.68-3.5 3.61 0 2.31 1.91 3.46 4.7 4.13 2.5.6 3 1.48 3 2.41 0 .69-.49 1.79-2.7 1.79-2.06 0-2.87-.92-2.98-2.1h-2.2c.12 2.19 1.76 3.42 3.68 3.83V21h3v-2.15c1.95-.37 3.5-1.5 3.5-3.55 0-2.84-2.43-3.81-4.7-4.4z" />
-              </svg>
-              Expense Tracker
-            </h1>
-          ) : (
-            <div className="w-full flex justify-center">
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                className="h-8 w-8 text-primary-600 dark:text-primary-400"
-                viewBox="0 0 24 24"
-                fill="currentColor"
-              >
-                <path d="M11.8 10.9c-2.27-.59-3-1.2-3-2.15 0-1.09 1.01-1.85 2.7-1.85 1.78 0 2.44.85 2.5 2.1h2.21c-.07-1.72-1.12-3.3-3.21-3.81V3h-3v2.16c-1.94.42-3.5 1.68-3.5 3.61 0 2.31 1.91 3.46 4.7 4.13 2.5.6 3 1.48 3 2.41 0 .69-.49 1.79-2.7 1.79-2.06 0-2.87-.92-2.98-2.1h-2.2c.12 2.19 1.76 3.42 3.68 3.83V21h3v-2.15c1.95-.37 3.5-1.5 3.5-3.55 0-2.84-2.43-3.81-4.7-4.4z" />
-              </svg>
-            </div>
-          )}
-          <button
-            onClick={toggleSidebar}
-            className="p-2 rounded-lg text-gray-500 hover:bg-gray-100 dark:hover:bg-gray-700 hover:text-primary-600 dark:hover:text-primary-400 transition-colors"
-          >
+    <>
+      {/* Mobile overlay */}
+      {isOpen && (
+        <div
+          className="md:hidden fixed inset-0 bg-black bg-opacity-50 z-20"
+          onClick={toggleSidebar}
+          aria-hidden="true"
+        />
+      )}
+
+      {/* Sidebar */}
+      <div
+        className={`bg-white dark:bg-gray-800 border-r border-gray-200 dark:border-gray-700 shadow-lg transition-all duration-300 ease-in-out h-screen overflow-hidden z-30
+          ${isOpen ? "w-64" : "w-0 md:w-20"} 
+          fixed md:relative`}
+      >
+        <div className="flex flex-col h-full">
+          {/* Logo and app name */}
+          <div className="flex items-center justify-between p-4 border-b border-gray-200 dark:border-gray-700">
             {isOpen ? (
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                className="h-5 w-5"
-                viewBox="0 0 20 20"
-                fill="currentColor"
-              >
-                <path
-                  fillRule="evenodd"
-                  d="M12.707 5.293a1 1 0 010 1.414L9.414 10l3.293 3.293a1 1 0 01-1.414 1.414l-4-4a1 1 0 010-1.414l4-4a1 1 0 011.414 0z"
-                  clipRule="evenodd"
-                />
-              </svg>
+              <h1 className="text-xl font-bold text-primary-600 dark:text-primary-400 flex items-center">
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  className="h-6 w-6 mr-2"
+                  viewBox="0 0 24 24"
+                  fill="currentColor"
+                >
+                  <path d="M11.8 10.9c-2.27-.59-3-1.2-3-2.15 0-1.09 1.01-1.85 2.7-1.85 1.78 0 2.44.85 2.5 2.1h2.21c-.07-1.72-1.12-3.3-3.21-3.81V3h-3v2.16c-1.94.42-3.5 1.68-3.5 3.61 0 2.31 1.91 3.46 4.7 4.13 2.5.6 3 1.48 3 2.41 0 .69-.49 1.79-2.7 1.79-2.06 0-2.87-.92-2.98-2.1h-2.2c.12 2.19 1.76 3.42 3.68 3.83V21h3v-2.15c1.95-.37 3.5-1.5 3.5-3.55 0-2.84-2.43-3.81-4.7-4.4z" />
+                </svg>
+                Expense Tracker
+              </h1>
             ) : (
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                className="h-5 w-5"
-                viewBox="0 0 20 20"
-                fill="currentColor"
-              >
-                <path
-                  fillRule="evenodd"
-                  d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z"
-                  clipRule="evenodd"
-                />
-              </svg>
+              <div className="w-full flex justify-center">
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  className="h-8 w-8 text-primary-600 dark:text-primary-400"
+                  viewBox="0 0 24 24"
+                  fill="currentColor"
+                >
+                  <path d="M11.8 10.9c-2.27-.59-3-1.2-3-2.15 0-1.09 1.01-1.85 2.7-1.85 1.78 0 2.44.85 2.5 2.1h2.21c-.07-1.72-1.12-3.3-3.21-3.81V3h-3v2.16c-1.94.42-3.5 1.68-3.5 3.61 0 2.31 1.91 3.46 4.7 4.13 2.5.6 3 1.48 3 2.41 0 .69-.49 1.79-2.7 1.79-2.06 0-2.87-.92-2.98-2.1h-2.2c.12 2.19 1.76 3.42 3.68 3.83V21h3v-2.15c1.95-.37 3.5-1.5 3.5-3.55 0-2.84-2.43-3.81-4.7-4.4z" />
+                </svg>
+              </div>
             )}
-          </button>
-        </div>
-
-        {/* Menu items */}
-        <nav className="flex-1 px-4 mt-6 overflow-y-auto">
-          <ul className="space-y-1">
-            {items.map((item) => (
-              <SidebarIcon
-                key={item.id}
-                icon={item.icon}
-                text={item.text}
-                isOpen={isOpen}
-                isActive={activeItem === item.id}
-                onClick={() => setActiveItem(item.id)}
-              />
-            ))}
-          </ul>
-        </nav>
-
-        {/* Theme toggle */}
-        <div className="p-4 border-t border-gray-200 dark:border-gray-700">
-          <button
-            onClick={toggleDarkMode}
-            className={`flex items-center ${
-              isOpen ? "justify-start" : "justify-center"
-            } w-full py-2 px-4 rounded-lg transition-colors hover:bg-gray-100 dark:hover:bg-gray-800 text-gray-500 dark:text-gray-400`}
-          >
-            <div className={`w-5 h-5 flex-shrink-0 ${isOpen ? "mr-3" : ""}`}>
-              {darkMode ? (
-                <MoonIcon className="w-full h-full" />
+            <button
+              onClick={toggleSidebar}
+              className="p-2 rounded-lg text-gray-500 hover:bg-gray-100 dark:hover:bg-gray-700 hover:text-primary-600 dark:hover:text-primary-400 transition-colors"
+            >
+              {isOpen ? (
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  className="h-5 w-5"
+                  viewBox="0 0 20 20"
+                  fill="currentColor"
+                >
+                  <path
+                    fillRule="evenodd"
+                    d="M12.707 5.293a1 1 0 010 1.414L9.414 10l3.293 3.293a1 1 0 01-1.414 1.414l-4-4a1 1 0 010-1.414l4-4a1 1 0 011.414 0z"
+                    clipRule="evenodd"
+                  />
+                </svg>
               ) : (
-                <SunIcon className="w-full h-full" />
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  className="h-5 w-5"
+                  viewBox="0 0 20 20"
+                  fill="currentColor"
+                >
+                  <path
+                    fillRule="evenodd"
+                    d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z"
+                    clipRule="evenodd"
+                  />
+                </svg>
               )}
-            </div>
-            {isOpen && (
-              <span className="text-sm font-medium">
-                {darkMode ? "Dark Mode" : "Light Mode"}
-              </span>
-            )}
-          </button>
+            </button>
+          </div>
+
+          {/* Menu items */}
+          <nav className="flex-1 px-4 mt-6 overflow-y-auto">
+            <ul className="space-y-1">
+              {items.map((item) => (
+                <SidebarIcon
+                  key={item.id}
+                  icon={item.icon}
+                  text={item.text}
+                  isOpen={isOpen}
+                  isActive={activeItem === item.id}
+                  onClick={() => handleItemClick(item.id)}
+                />
+              ))}
+            </ul>
+          </nav>
+
+          {/* Theme toggle */}
+          <div className="p-4 border-t border-gray-200 dark:border-gray-700">
+            <button
+              onClick={toggleDarkMode}
+              className={`flex items-center ${
+                isOpen ? "justify-start" : "justify-center"
+              } w-full py-2 px-4 rounded-lg transition-colors hover:bg-gray-100 dark:hover:bg-gray-800 text-gray-500 dark:text-gray-400`}
+            >
+              <div className={`w-5 h-5 flex-shrink-0 ${isOpen ? "mr-3" : ""}`}>
+                {darkMode ? (
+                  <MoonIcon className="w-full h-full" />
+                ) : (
+                  <SunIcon className="w-full h-full" />
+                )}
+              </div>
+              {isOpen && (
+                <span className="text-sm font-medium">
+                  {darkMode ? "Dark Mode" : "Light Mode"}
+                </span>
+              )}
+            </button>
+          </div>
         </div>
       </div>
-    </div>
+
+      {/* Mobile toggle button (visible only on mobile when sidebar is closed) */}
+      {!isOpen && (
+        <button
+          onClick={toggleSidebar}
+          className="md:hidden fixed top-4 left-4 z-30 p-2 rounded-lg bg-white dark:bg-gray-800 shadow-lg text-gray-700 dark:text-gray-300"
+          aria-label="Open menu"
+        >
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            className="h-6 w-6"
+            fill="none"
+            viewBox="0 0 24 24"
+            stroke="currentColor"
+          >
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              strokeWidth={2}
+              d="M4 6h16M4 12h16M4 18h16"
+            />
+          </svg>
+        </button>
+      )}
+    </>
   );
 };
 

@@ -29,24 +29,24 @@ const DashboardContent = ({ expenses, openExpenseForm, budget }) => {
     .slice(0, 5);
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 px-2 sm:px-0">
       {/* Header with action button */}
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6">
         <div>
-          <h1 className="text-2xl font-display font-bold text-gray-900 dark:text-white">
+          <h1 className="text-xl sm:text-2xl font-display font-bold text-gray-900 dark:text-white">
             Dashboard Overview
           </h1>
-          <p className="text-gray-600 dark:text-gray-400 mt-1">
+          <p className="text-sm sm:text-base text-gray-600 dark:text-gray-400 mt-1">
             Track your expenses and budget at a glance
           </p>
         </div>
         <button
           onClick={openExpenseForm}
-          className="btn btn-primary flex items-center gap-2"
+          className="btn btn-primary flex items-center gap-2 text-sm sm:text-base w-full sm:w-auto justify-center"
         >
           <svg
             xmlns="http://www.w3.org/2000/svg"
-            className="h-5 w-5"
+            className="h-4 w-4 sm:h-5 sm:w-5"
             viewBox="0 0 20 20"
             fill="currentColor"
           >
@@ -61,17 +61,17 @@ const DashboardContent = ({ expenses, openExpenseForm, budget }) => {
       </div>
 
       {/* Budget summary cards */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-        <div className="card bg-white dark:bg-gray-800">
+      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 sm:gap-6">
+        <div className="card bg-white dark:bg-gray-800 p-4">
           <div className="flex items-center justify-between mb-2">
-            <h3 className="font-medium text-gray-700 dark:text-gray-300">
+            <h3 className="font-medium text-sm sm:text-base text-gray-700 dark:text-gray-300">
               Total Expenses
             </h3>
-            <span className="text-xs font-medium px-2.5 py-0.5 rounded-full bg-primary-100 text-primary-800 dark:bg-primary-900 dark:text-primary-300">
+            <span className="text-xs font-medium px-2 py-0.5 rounded-full bg-primary-100 text-primary-800 dark:bg-primary-900 dark:text-primary-300">
               {budgetPercentage}% Used
             </span>
           </div>
-          <p className="text-3xl font-bold text-primary-600 dark:text-primary-400">
+          <p className="text-2xl sm:text-3xl font-bold text-primary-600 dark:text-primary-400">
             ${totalExpenses.toFixed(2)}
           </p>
           <div className="w-full bg-gray-200 rounded-full h-2.5 mt-3 dark:bg-gray-700">
@@ -88,12 +88,12 @@ const DashboardContent = ({ expenses, openExpenseForm, budget }) => {
           </div>
         </div>
 
-        <div className="card bg-white dark:bg-gray-800">
-          <h3 className="font-medium text-gray-700 dark:text-gray-300 mb-2">
+        <div className="card bg-white dark:bg-gray-800 p-4">
+          <h3 className="font-medium text-sm sm:text-base text-gray-700 dark:text-gray-300 mb-2">
             Remaining Budget
           </h3>
           <p
-            className={`text-3xl font-bold ${
+            className={`text-2xl sm:text-3xl font-bold ${
               remainingBudget < 0
                 ? "text-danger-600 dark:text-danger-400"
                 : "text-accent-600 dark:text-accent-400"
@@ -101,45 +101,45 @@ const DashboardContent = ({ expenses, openExpenseForm, budget }) => {
           >
             ${remainingBudget.toFixed(2)}
           </p>
-          <p className="text-sm text-gray-500 dark:text-gray-400 mt-2">
+          <p className="text-xs sm:text-sm text-gray-500 dark:text-gray-400 mt-2">
             {remainingBudget < 0
               ? "You have exceeded your budget"
               : "Budget remaining for this period"}
           </p>
         </div>
 
-        <div className="card bg-white dark:bg-gray-800">
-          <h3 className="font-medium text-gray-700 dark:text-gray-300 mb-2">
+        <div className="card bg-white dark:bg-gray-800 p-4 sm:col-span-2 md:col-span-1">
+          <h3 className="font-medium text-sm sm:text-base text-gray-700 dark:text-gray-300 mb-2">
             Total Budget
           </h3>
-          <p className="text-3xl font-bold text-secondary-600 dark:text-secondary-400">
+          <p className="text-2xl sm:text-3xl font-bold text-secondary-600 dark:text-secondary-400">
             ${budget.toFixed(2)}
           </p>
-          <p className="text-sm text-gray-500 dark:text-gray-400 mt-2">
+          <p className="text-xs sm:text-sm text-gray-500 dark:text-gray-400 mt-2">
             Your monthly spending limit
           </p>
         </div>
       </div>
 
       {/* Two column layout for recent expenses and top categories */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mt-8">
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6 mt-6 sm:mt-8">
         {/* Recent expenses */}
-        <div className="card bg-white dark:bg-gray-800">
-          <h3 className="text-lg font-semibold text-gray-800 dark:text-white mb-4">
+        <div className="card bg-white dark:bg-gray-800 p-4">
+          <h3 className="text-base sm:text-lg font-semibold text-gray-800 dark:text-white mb-3 sm:mb-4">
             Recent Expenses
           </h3>
           {recentExpenses.length > 0 ? (
-            <ul className="divide-y divide-gray-200 dark:divide-gray-700">
+            <ul className="divide-y divide-gray-200 dark:divide-gray-700 -mx-4 px-4">
               {recentExpenses.map((expense) => (
                 <li
                   key={expense._id}
                   className="py-3 flex justify-between items-center"
                 >
-                  <div>
-                    <p className="font-medium text-gray-800 dark:text-white">
+                  <div className="overflow-hidden">
+                    <p className="font-medium text-sm sm:text-base text-gray-800 dark:text-white truncate">
                       {expense.description || "No description"}
                     </p>
-                    <div className="flex items-center gap-2 mt-1">
+                    <div className="flex flex-wrap items-center gap-2 mt-1">
                       <span className="text-xs font-medium px-2 py-0.5 rounded-full bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-300">
                         {expense.category || "Uncategorized"}
                       </span>
@@ -150,14 +150,14 @@ const DashboardContent = ({ expenses, openExpenseForm, budget }) => {
                       </span>
                     </div>
                   </div>
-                  <span className="font-medium text-gray-900 dark:text-white">
+                  <span className="font-medium text-sm sm:text-base text-gray-900 dark:text-white ml-2">
                     ${expense.amount?.toFixed(2) || "0.00"}
                   </span>
                 </li>
               ))}
             </ul>
           ) : (
-            <p className="text-gray-500 dark:text-gray-400 text-center py-6">
+            <p className="text-gray-500 dark:text-gray-400 text-center py-6 text-sm sm:text-base">
               No expenses recorded yet.
             </p>
           )}
@@ -165,7 +165,7 @@ const DashboardContent = ({ expenses, openExpenseForm, budget }) => {
             <div className="mt-4 text-center">
               <button
                 onClick={() => setActiveItem("expenses")}
-                className="text-primary-600 hover:text-primary-800 dark:text-primary-400 dark:hover:text-primary-300 text-sm font-medium"
+                className="text-primary-600 hover:text-primary-800 dark:text-primary-400 dark:hover:text-primary-300 text-xs sm:text-sm font-medium"
               >
                 View all expenses
               </button>
@@ -174,8 +174,8 @@ const DashboardContent = ({ expenses, openExpenseForm, budget }) => {
         </div>
 
         {/* Top spending categories */}
-        <div className="card bg-white dark:bg-gray-800">
-          <h3 className="text-lg font-semibold text-gray-800 dark:text-white mb-4">
+        <div className="card bg-white dark:bg-gray-800 p-4">
+          <h3 className="text-base sm:text-lg font-semibold text-gray-800 dark:text-white mb-3 sm:mb-4">
             Top Spending Categories
           </h3>
           {topCategories.length > 0 ? (
@@ -183,10 +183,10 @@ const DashboardContent = ({ expenses, openExpenseForm, budget }) => {
               {topCategories.map(([category, amount], index) => (
                 <li key={category} className="space-y-2">
                   <div className="flex justify-between items-center">
-                    <span className="font-medium text-gray-700 dark:text-gray-300">
+                    <span className="font-medium text-sm sm:text-base text-gray-700 dark:text-gray-300 truncate mr-2">
                       {category}
                     </span>
-                    <span className="font-medium text-gray-900 dark:text-white">
+                    <span className="font-medium text-sm sm:text-base text-gray-900 dark:text-white">
                       ${amount.toFixed(2)}
                     </span>
                   </div>
@@ -206,7 +206,7 @@ const DashboardContent = ({ expenses, openExpenseForm, budget }) => {
               ))}
             </ul>
           ) : (
-            <p className="text-gray-500 dark:text-gray-400 text-center py-6">
+            <p className="text-gray-500 dark:text-gray-400 text-center py-6 text-sm sm:text-base">
               No expense categories available.
             </p>
           )}

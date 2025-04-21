@@ -1,8 +1,10 @@
-import React, { useEffect, useRef } from "react";
+import { useEffect, useRef } from "react";
 import { Link } from "react-router-dom";
 import { useTheme } from "./ThemeContext";
 import { motion } from "framer-motion";
 import PropTypes from "prop-types";
+import ImageCarousel from "./ImageCarousel";
+import GitHubStarNavButton from "./GitHubStarNavButton";
 
 // Animated background component
 const AnimatedBackground = () => {
@@ -202,6 +204,10 @@ const LandingPage = () => {
             </h1>
           </motion.div>
           <div className="flex items-center space-x-2 sm:space-x-4">
+            {/* GitHub Star Button in Navigation */}
+            <div className="hidden md:block mr-2">
+              <GitHubStarNavButton />
+            </div>
             <motion.button
               onClick={toggleDarkMode}
               className="text-gray-500 dark:text-gray-400 hover:text-primary-600 dark:hover:text-primary-400 p-1 rounded-full"
@@ -367,158 +373,27 @@ const LandingPage = () => {
                   </Link>
                 </motion.div>
               </div>
+
+              {/* Show GitHub star button for mobile only */}
+              <div className="mt-6 md:hidden">
+                <GitHubStarNavButton className="justify-center" />
+              </div>
             </motion.div>
 
-            {/* Right side - Image */}
+            {/* Right side - Image Carousel (replaces the illustration) */}
             <motion.div
               className="w-full lg:w-1/2 lg:pl-4 xl:pl-8 mt-8 lg:mt-0"
               initial={{ opacity: 0, x: 50 }}
               animate={{ opacity: 1, x: 0 }}
               transition={{ duration: 0.5 }}
             >
-              <div className="relative rounded-xl overflow-hidden shadow-2xl transform transition-all hover:scale-[1.02] duration-300">
-                {/* Main dashboard illustration */}
-                <div className="relative aspect-[16/9] bg-gradient-to-br from-white to-gray-50 dark:from-gray-800 dark:to-gray-900 flex items-center justify-center p-4">
-                  <div className="absolute inset-0 bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNjAiIGhlaWdodD0iNjAiIHZpZXdCb3g9IjAgMCA2MCA2MCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48ZyBmaWxsPSJub25lIiBmaWxsLXJ1bGU9ImV2ZW5vZGQiPjxnIGZpbGw9IiM3OTI2ZmYiIGZpbGwtb3BhY2l0eT0iMC4wNSI+PHBhdGggZD0iTTM2IDM0djZoNnYtNmgtNnptMCAwdi02aC02djZoNnptNiAwaDZ2LTZoLTZ2NnptLTEyIDBoLTZ2Nmg2di02em0tNi02aC02djZoNnYtNnoiLz48L2c+PC9nPjwvc3ZnPg==')] opacity-50"></div>
-
-                  {/* Dashboard content */}
-                  <div className="relative w-full h-full flex flex-col rounded-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 shadow-md overflow-hidden z-10">
-                    {/* Header */}
-                    <div className="flex items-center justify-between p-3 border-b border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-900">
-                      <div className="flex space-x-2">
-                        <div className="w-3 h-3 rounded-full bg-red-400"></div>
-                        <div className="w-3 h-3 rounded-full bg-yellow-400"></div>
-                        <div className="w-3 h-3 rounded-full bg-green-400"></div>
-                      </div>
-                      <div className="flex space-x-1">
-                        <div className="w-20 h-4 rounded bg-gray-200 dark:bg-gray-700"></div>
-                        <div className="w-20 h-4 rounded bg-primary-200 dark:bg-primary-900"></div>
-                      </div>
-                    </div>
-
-                    {/* Content */}
-                    <div className="flex flex-1 p-4">
-                      {/* Left sidebar */}
-                      <div className="hidden sm:block w-1/4 space-y-2 pr-2">
-                        <div className="w-full h-8 rounded bg-primary-500 opacity-80"></div>
-                        <div className="w-full h-6 rounded bg-gray-200 dark:bg-gray-700"></div>
-                        <div className="w-full h-6 rounded bg-gray-200 dark:bg-gray-700"></div>
-                        <div className="w-full h-6 rounded bg-gray-200 dark:bg-gray-700"></div>
-                        <div className="w-full h-6 rounded bg-gray-200 dark:bg-gray-700"></div>
-                      </div>
-
-                      {/* Main content */}
-                      <div className="flex-1 space-y-4">
-                        {/* Stats cards */}
-                        <div className="grid grid-cols-2 gap-3">
-                          <div className="bg-green-50 dark:bg-green-900/20 p-3 rounded-lg border border-green-100 dark:border-green-900">
-                            <div className="w-8 h-8 mb-2 rounded-full bg-green-200 dark:bg-green-800 flex items-center justify-center">
-                              <div className="w-4 h-4 rounded-full bg-green-500"></div>
-                            </div>
-                            <div className="w-12 h-3 mb-1 bg-green-200 dark:bg-green-800 rounded"></div>
-                            <div className="w-16 h-5 bg-green-300 dark:bg-green-700 rounded"></div>
-                          </div>
-                          <div className="bg-red-50 dark:bg-red-900/20 p-3 rounded-lg border border-red-100 dark:border-red-900">
-                            <div className="w-8 h-8 mb-2 rounded-full bg-red-200 dark:bg-red-800 flex items-center justify-center">
-                              <div className="w-4 h-4 rounded-full bg-red-500"></div>
-                            </div>
-                            <div className="w-12 h-3 mb-1 bg-red-200 dark:bg-red-800 rounded"></div>
-                            <div className="w-16 h-5 bg-red-300 dark:bg-red-700 rounded"></div>
-                          </div>
-                        </div>
-
-                        {/* Chart */}
-                        <div className="bg-white dark:bg-gray-800 p-3 rounded-lg border border-gray-200 dark:border-gray-700">
-                          <div className="w-full h-4 mb-3 rounded bg-gray-200 dark:bg-gray-700"></div>
-                          <div className="flex items-end h-24 space-x-2">
-                            <div className="w-1/12 rounded-t h-1/3 bg-primary-300 dark:bg-primary-700"></div>
-                            <div className="w-1/12 rounded-t h-1/2 bg-primary-400 dark:bg-primary-600"></div>
-                            <div className="w-1/12 rounded-t h-3/4 bg-primary-500 dark:bg-primary-500"></div>
-                            <div className="w-1/12 rounded-t h-2/3 bg-primary-600 dark:bg-primary-400"></div>
-                            <div className="w-1/12 rounded-t h-full bg-primary-700 dark:bg-primary-300"></div>
-                            <div className="w-1/12 rounded-t h-1/3 bg-primary-600 dark:bg-primary-400"></div>
-                            <div className="w-1/12 rounded-t h-2/3 bg-primary-500 dark:bg-primary-500"></div>
-                            <div className="w-1/12 rounded-t h-1/2 bg-primary-400 dark:bg-primary-600"></div>
-                            <div className="w-1/12 rounded-t h-1/3 bg-primary-300 dark:bg-primary-700"></div>
-                          </div>
-                        </div>
-
-                        {/* Table */}
-                        <div className="bg-white dark:bg-gray-800 p-3 rounded-lg border border-gray-200 dark:border-gray-700">
-                          <div className="space-y-2">
-                            <div className="flex justify-between">
-                              <div className="w-1/3 h-4 rounded bg-gray-200 dark:bg-gray-700"></div>
-                              <div className="w-16 h-4 rounded bg-primary-200 dark:bg-primary-800"></div>
-                            </div>
-                            <div className="flex justify-between py-2 border-b border-gray-100 dark:border-gray-700">
-                              <div className="w-1/4 h-3 rounded bg-gray-200 dark:bg-gray-700"></div>
-                              <div className="w-12 h-3 rounded bg-green-200 dark:bg-green-800"></div>
-                            </div>
-                            <div className="flex justify-between py-2 border-b border-gray-100 dark:border-gray-700">
-                              <div className="w-1/3 h-3 rounded bg-gray-200 dark:bg-gray-700"></div>
-                              <div className="w-16 h-3 rounded bg-red-200 dark:bg-red-800"></div>
-                            </div>
-                            <div className="flex justify-between py-2 border-b border-gray-100 dark:border-gray-700">
-                              <div className="w-1/5 h-3 rounded bg-gray-200 dark:bg-gray-700"></div>
-                              <div className="w-14 h-3 rounded bg-gray-200 dark:bg-gray-700"></div>
-                            </div>
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-
-                  {/* Floating elements */}
-                  <div className="absolute top-2 right-2 w-14 h-14 bg-yellow-300 dark:bg-yellow-600 rounded-full opacity-20 animate-pulse"></div>
-                  <div className="absolute bottom-10 left-4 w-8 h-8 bg-primary-400 dark:bg-primary-500 rounded-full opacity-20 animate-pulse animation-delay-2000"></div>
-                  <div className="absolute top-1/3 right-1/4 w-10 h-10 bg-green-400 dark:bg-green-500 rounded-full opacity-20 animate-pulse animation-delay-4000"></div>
-                </div>
-
-                {/* Overlay gradient */}
-                <div className="absolute inset-0 bg-gradient-to-tr from-primary-600/30 to-transparent pointer-events-none"></div>
-
-                {/* Decorative elements */}
-                <div className="absolute -bottom-6 -right-6 w-24 h-24 bg-primary-200 dark:bg-primary-800/30 rounded-full z-[-1]"></div>
-                <div className="absolute -top-6 -left-6 w-16 h-16 bg-primary-300/30 dark:bg-primary-700/20 rounded-full z-[-1]"></div>
-
-                {/* Floating expense icons */}
-                <div className="absolute -top-4 -right-4 w-12 h-12 bg-white dark:bg-gray-800 rounded-lg shadow-lg flex items-center justify-center transform rotate-12 animate-float">
-                  <svg
-                    className="w-6 h-6 text-primary-500"
-                    fill="none"
-                    stroke="currentColor"
-                    viewBox="0 0 24 24"
-                  >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth="2"
-                      d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
-                    />
-                  </svg>
-                </div>
-                <div className="absolute -bottom-2 -left-2 w-10 h-10 bg-white dark:bg-gray-800 rounded-lg shadow-lg flex items-center justify-center transform -rotate-6 animate-float animation-delay-2000">
-                  <svg
-                    className="w-5 h-5 text-green-500"
-                    fill="none"
-                    stroke="currentColor"
-                    viewBox="0 0 24 24"
-                  >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth="2"
-                      d="M9 8h6m-5 0a3 3 0 110 6H9l3 3m-3-6h6m6 1a9 9 0 11-18 0 9 9 0 0118 0z"
-                    />
-                  </svg>
-                </div>
-              </div>
+              <ImageCarousel />
             </motion.div>
           </div>
         </div>
       </main>
 
-      {/* Footer */}
+      {/* Updated Footer */}
       <motion.footer
         className="bg-white/70 dark:bg-gray-800/70 backdrop-blur-md py-4 shadow-inner relative z-1"
         initial={{ opacity: 0, y: 20 }}
@@ -527,11 +402,49 @@ const LandingPage = () => {
       >
         <div className="container mx-auto px-4">
           <div className="flex flex-col sm:flex-row justify-between items-center">
-            <div className="text-gray-600 dark:text-gray-400 text-xs sm:text-sm mb-2 sm:mb-0">
-              &copy; {new Date().getFullYear()} Expense Tracker. All rights
-              reserved.
+            <div className="text-gray-600 dark:text-gray-400 text-xs sm:text-sm mb-3 sm:mb-0 flex items-center">
+              &copy; 2025 Expense Tracker • Made with{" "}
+              <span className="text-red-500 mx-1 animate-pulse">❤️</span>
+              by Kabilan S
             </div>
             <div className="flex items-center space-x-4 sm:space-x-6">
+              {/* Social media links */}
+              <a
+                href="https://github.com/S-KABILAN"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-gray-600 dark:text-gray-400 hover:text-primary-600 dark:hover:text-primary-400 transition-colors"
+                aria-label="GitHub"
+              >
+                <svg
+                  className="w-5 h-5"
+                  fill="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    fillRule="evenodd"
+                    clipRule="evenodd"
+                    d="M12 2C6.477 2 2 6.477 2 12c0 4.42 2.87 8.17 6.84 9.5.5.08.66-.23.66-.5v-1.69c-2.77.6-3.36-1.34-3.36-1.34-.46-1.16-1.11-1.47-1.11-1.47-.91-.62.07-.6.07-.6 1 .07 1.53 1.03 1.53 1.03.87 1.52 2.34 1.07 2.91.83.09-.65.35-1.09.63-1.34-2.22-.25-4.55-1.11-4.55-4.92 0-1.11.38-2 1.03-2.71-.1-.25-.45-1.29.1-2.64 0 0 .84-.27 2.75 1.02.79-.22 1.65-.33 2.5-.33.85 0 1.71.11 2.5.33 1.91-1.29 2.75-1.02 2.75-1.02.55 1.35.2 2.39.1 2.64.65.71 1.03 1.6 1.03 2.71 0 3.82-2.34 4.66-4.57 4.91.36.31.69.92.69 1.85V21c0 .27.16.59.67.5C19.14 20.16 22 16.42 22 12A10 10 0 0012 2z"
+                  />
+                </svg>
+              </a>
+              <a
+                href="https://www.linkedin.com/in/kabilan-s-3aab74256/"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-gray-600 dark:text-gray-400 hover:text-primary-600 dark:hover:text-primary-400 transition-colors"
+                aria-label="LinkedIn"
+              >
+                <svg
+                  className="w-5 h-5"
+                  fill="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433c-1.144 0-2.063-.926-2.063-2.065 0-1.138.92-2.063 2.063-2.063 1.14 0 2.064.925 2.064 2.063 0 1.139-.925 2.065-2.064 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z" />
+                </svg>
+              </a>
+
+              {/* Terms, Privacy, Contact links */}
               <a
                 href="#"
                 className="text-gray-500 dark:text-gray-400 hover:text-primary-600 dark:hover:text-primary-400 text-xs sm:text-sm"
@@ -545,7 +458,7 @@ const LandingPage = () => {
                 Privacy
               </a>
               <a
-                href="#"
+                href="https://kabilan-portfolio.vercel.app/"
                 className="text-gray-500 dark:text-gray-400 hover:text-primary-600 dark:hover:text-primary-400 text-xs sm:text-sm"
               >
                 Contact

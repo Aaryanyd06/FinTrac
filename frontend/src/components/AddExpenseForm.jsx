@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import PropTypes from "prop-types";
 
 const AddExpenseForm = ({ addExpense, onCancel, categories }) => {
   const [description, setDescription] = useState("");
@@ -50,9 +51,12 @@ const AddExpenseForm = ({ addExpense, onCancel, categories }) => {
   };
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-5">
+    <form onSubmit={handleSubmit} className="space-y-4 sm:space-y-5">
       <div>
-        <label htmlFor="description" className="label">
+        <label
+          htmlFor="description"
+          className="label text-sm sm:text-base mb-1"
+        >
           Description
         </label>
         <input
@@ -61,19 +65,19 @@ const AddExpenseForm = ({ addExpense, onCancel, categories }) => {
           placeholder="What did you spend on?"
           value={description}
           onChange={(e) => setDescription(e.target.value)}
-          className={`input ${
+          className={`input text-sm sm:text-base py-2 ${
             errors.description ? "border-danger-500 dark:border-danger-500" : ""
           }`}
         />
         {errors.description && (
-          <p className="mt-1 text-sm text-danger-600 dark:text-danger-400">
+          <p className="mt-1 text-xs sm:text-sm text-danger-600 dark:text-danger-400">
             {errors.description}
           </p>
         )}
       </div>
 
       <div>
-        <label htmlFor="amount" className="label">
+        <label htmlFor="amount" className="label text-sm sm:text-base mb-1">
           Amount
         </label>
         <div className="relative">
@@ -88,27 +92,27 @@ const AddExpenseForm = ({ addExpense, onCancel, categories }) => {
             placeholder="0.00"
             value={amount}
             onChange={(e) => setAmount(e.target.value)}
-            className={`input pl-8 ${
+            className={`input pl-8 text-sm sm:text-base py-2 ${
               errors.amount ? "border-danger-500 dark:border-danger-500" : ""
             }`}
           />
         </div>
         {errors.amount && (
-          <p className="mt-1 text-sm text-danger-600 dark:text-danger-400">
+          <p className="mt-1 text-xs sm:text-sm text-danger-600 dark:text-danger-400">
             {errors.amount}
           </p>
         )}
       </div>
 
       <div>
-        <label htmlFor="category" className="label">
+        <label htmlFor="category" className="label text-sm sm:text-base mb-1">
           Category
         </label>
         <select
           id="category"
           value={category}
           onChange={(e) => setCategory(e.target.value)}
-          className={`input ${
+          className={`input text-sm sm:text-base py-2 ${
             errors.category ? "border-danger-500 dark:border-danger-500" : ""
           }`}
         >
@@ -120,14 +124,14 @@ const AddExpenseForm = ({ addExpense, onCancel, categories }) => {
           ))}
         </select>
         {errors.category && (
-          <p className="mt-1 text-sm text-danger-600 dark:text-danger-400">
+          <p className="mt-1 text-xs sm:text-sm text-danger-600 dark:text-danger-400">
             {errors.category}
           </p>
         )}
       </div>
 
       <div>
-        <label htmlFor="date" className="label">
+        <label htmlFor="date" className="label text-sm sm:text-base mb-1">
           Date
         </label>
         <input
@@ -135,33 +139,33 @@ const AddExpenseForm = ({ addExpense, onCancel, categories }) => {
           type="date"
           value={date}
           onChange={(e) => setDate(e.target.value)}
-          className={`input ${
+          className={`input text-sm sm:text-base py-2 ${
             errors.date ? "border-danger-500 dark:border-danger-500" : ""
           }`}
         />
         {errors.date && (
-          <p className="mt-1 text-sm text-danger-600 dark:text-danger-400">
+          <p className="mt-1 text-xs sm:text-sm text-danger-600 dark:text-danger-400">
             {errors.date}
           </p>
         )}
       </div>
 
-      <div className="flex justify-end space-x-4 pt-2">
+      <div className="flex flex-col sm:flex-row sm:justify-end space-y-2 sm:space-y-0 sm:space-x-4 pt-2">
         <button
           type="button"
           onClick={onCancel}
-          className="btn btn-outline"
+          className="btn btn-outline text-sm sm:text-base py-2 w-full sm:w-auto order-2 sm:order-1"
           disabled={isSubmitting}
         >
           Cancel
         </button>
         <button
           type="submit"
-          className="btn btn-primary"
+          className="btn btn-primary text-sm sm:text-base py-2 w-full sm:w-auto order-1 sm:order-2"
           disabled={isSubmitting}
         >
           {isSubmitting ? (
-            <div className="flex items-center">
+            <div className="flex items-center justify-center">
               <svg
                 className="animate-spin -ml-1 mr-2 h-4 w-4 text-white"
                 xmlns="http://www.w3.org/2000/svg"
@@ -191,6 +195,12 @@ const AddExpenseForm = ({ addExpense, onCancel, categories }) => {
       </div>
     </form>
   );
+};
+
+AddExpenseForm.propTypes = {
+  addExpense: PropTypes.func.isRequired,
+  onCancel: PropTypes.func.isRequired,
+  categories: PropTypes.array.isRequired,
 };
 
 export default AddExpenseForm;

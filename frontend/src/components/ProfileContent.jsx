@@ -6,7 +6,7 @@ const API_BASE_URL =
   import.meta.env.VITE_API_BASE_URL || "https://your-vercel-app.vercel.app/api";
 
 const Profile = ({ user, fetchUser }) => {
-  const [activeTab, setActiveTab] = useState("profile");
+  const [activeTab, setActiveTab] = useState("general");
   const [isEditing, setIsEditing] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
